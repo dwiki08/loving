@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loving/common/extension.dart';
-import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/loving/socket/handler/flash_packet_handler.dart';
 import 'package:loving/loving/socket/handler/xml_packet_handler.dart';
 import 'package:loving/model/game/chat.dart';
@@ -22,6 +21,7 @@ final socketProvider = Provider<SocketClient>((ref) {
     ref: ref,
     jsonPacketHandler: JsonPacketHandler(ref: ref),
     flashPacketHandler: FlashPacketHandler(ref: ref),
+    xmlPacketHandler: XmlPacketHandler(ref: ref),
   );
   ref.onDispose(() => service.close());
   return service;
@@ -38,14 +38,17 @@ class SocketClient {
   final Ref _ref;
   final JsonPacketHandler _jsonPacketHandler;
   final FlashPacketHandler _flashPacketHandler;
+  final XmlPacketHandler _xmlPacketHandler;
 
   SocketClient({
     required Ref ref,
     required JsonPacketHandler jsonPacketHandler,
     required FlashPacketHandler flashPacketHandler,
+    required XmlPacketHandler xmlPacketHandler,
   }) : _ref = ref,
        _jsonPacketHandler = jsonPacketHandler,
-       _flashPacketHandler = flashPacketHandler;
+       _flashPacketHandler = flashPacketHandler,
+       _xmlPacketHandler = xmlPacketHandler;
 
   late final Socket _socket;
   late final LoginModel _loginModel;
@@ -85,12 +88,6 @@ class SocketClient {
     log('Sent: $packet');
   }
 
-  void sendChat(String chat) {
-    final map = _ref.read(areaMapProvider);
-    String packet = "%xt%zm%message%${map.areaId}%$chat%zone%";
-    sendPacket(packet);
-  }
-
   Future<void> close() async {
     await _socket.close();
     await _streamPackets.close();
@@ -118,7 +115,9 @@ class SocketClient {
 
       // connected to socket
       _connectionStateController.add(SocketState.connected);
-      playerNotifier.setUsername(loginModel.username);
+      playerNotifier.update((player) {
+        return player.copyWith(username: loginModel.username);
+      });
 
       // listening to socket buffer
       final buffer = StringBuffer();
@@ -132,7 +131,7 @@ class SocketClient {
               _jsonPacketHandler.handle(this, message);
             }
             if (message.isValidXml) {
-              handlePacketXml(this, message);
+              _xmlPacketHandler.handle(this, message);
             }
             if (message.startsWith('%')) {
               _flashPacketHandler.handle(this, message);

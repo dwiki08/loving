@@ -59,8 +59,7 @@ class MapCmd {
       packetSender: PacketSender.client,
     );
     _socketClient.sendPacket("%xt%zm%moveToCell%${_map.areaId}%$cell%$pad%");
-    _playerNotifier.setCellPad(cell: cell, pad: pad);
-    // _ref.read(playerProvider.notifier).setCellPad(cell: cell, pad: pad);
+    _playerNotifier.update((player) => player.copyWith(cell: cell, pad: pad));
     await Future.delayed(defaultDelay);
   }
 
@@ -70,7 +69,7 @@ class MapCmd {
       packetSender: PacketSender.client,
     );
     _socketClient.sendPacket("%xt%zm%mv%${_map.areaId}%$x%$y%10%");
-    _playerNotifier.setPosition(posX: x, posY: y);
+    _playerNotifier.update((player) => player.copyWith(posX: x, posY: y));
     await Future.delayed(defaultDelay);
   }
 }

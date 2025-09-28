@@ -5,20 +5,16 @@ import '../../../common/utils.dart';
 import '../../../model/game/chat.dart';
 import '../../../model/packet.dart';
 import '../../data/map_area_notifier.dart';
-import '../../data/player_notifier.dart';
 
 class FlashPacketHandler {
   final Ref _ref;
 
   FlashPacketHandler({required Ref ref}) : _ref = ref;
 
-  PlayerNotifier get _playerNotifier => _ref.read(playerProvider.notifier);
-
   AreaMapNotifier get _areaMapNotifier => _ref.read(areaMapProvider.notifier);
 
   void handle(SocketClient s, String msg) {
     final areaMap = _ref.read(areaMapProvider);
-    final player = _ref.read(playerProvider);
 
     if (msg.contains("%xt%loginResponse%-1%true%")) {
       s.addLog(
@@ -36,6 +32,10 @@ class FlashPacketHandler {
     }
     if (msg.contains('mvts')) {
       // %xt%uotls%-1%sulcata2%mvts:-1,px:500,py:375,strPad:Left,bResting:false,mvtd:0,tx:0,ty:0,strFrame:r1a%
+    }
+    if (msg.contains('exitArea')) {
+      // %xt%exitArea%-1%23344%username%
+      _areaMapNotifier.removePlayer(msg.split('%')[5]);
     }
     if (msg.contains("chatm")) {
       final parts = msg.split('%');

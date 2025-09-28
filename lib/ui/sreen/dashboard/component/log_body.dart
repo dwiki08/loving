@@ -47,7 +47,6 @@ class _LogContentState extends ConsumerState<LogBody> {
         ),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<BasePreset>(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             isExpanded: true,
             hint: const Text(
               'Select preset commands...',
@@ -63,6 +62,7 @@ class _LogContentState extends ConsumerState<LogBody> {
                       value.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12),
                     ),
                   );
                 }).toList(),
@@ -185,11 +185,13 @@ class _LogContentState extends ConsumerState<LogBody> {
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
               child: Visibility(
-                visible: !widget.isRunning || !_hideOptions,
+                visible:
+                    (!widget.isRunning || !_hideOptions) &&
+                    widget.selectedPreset != null,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 16,
+                    horizontal: 8,
+                    vertical: 8,
                   ),
                   margin: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(

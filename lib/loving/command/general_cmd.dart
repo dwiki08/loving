@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/loving/socket/socket_client.dart';
+import 'package:loving/model/game/area_map.dart';
 
 import '../../common/utils.dart';
-import '../../model/game/player.dart';
 import '../../model/packet.dart';
-import '../data/player_notifier.dart';
 
 final generalCmdProvider = Provider<GeneralCmd>((ref) {
   final client = ref.read(socketProvider);
@@ -17,9 +17,7 @@ class GeneralCmd {
 
   GeneralCmd(this._ref, this._client);
 
-  Player get _player => _ref.read(playerProvider);
-
-  PlayerNotifier get _playerNotifier => _ref.read(playerProvider.notifier);
+  AreaMap get _areaMap => _ref.read(areaMapProvider);
 
   void addLog(String message) {
     _client.addLog(message: message, packetSender: PacketSender.client);
@@ -30,7 +28,8 @@ class GeneralCmd {
       message: "Sending chat: $message",
       packetSender: PacketSender.client,
     );
-    _client.sendChat(message);
+    String packet = "%xt%zm%message%${_areaMap.areaId}%$message%zone%";
+    _client.sendPacket(packet);
     await Future.delayed(defaultDelay);
   }
 }

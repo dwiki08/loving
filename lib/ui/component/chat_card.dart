@@ -54,13 +54,15 @@ class _ChatCardState extends State<ChatCard> {
                 style: const TextStyle(color: Colors.blue),
               ),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     "[${widget.msg.type.name.toUpperCase()}] ",
                     style: TextStyle(color: typeColor),
                   ),
-                  Text("${widget.msg.sender}: "),
-                  Text(widget.msg.message),
+                  Expanded(
+                    child: Text("${widget.msg.sender} : ${widget.msg.message}"),
+                  ),
                 ],
               ),
             ],

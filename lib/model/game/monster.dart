@@ -1,37 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:loving/common/utils.dart';
 
+import 'aura.dart';
+
 @immutable
 class Monster {
-  final String monMapId;
+  final int monMapId;
   final String monId;
   final bool isAlive;
   final int currentHp;
   final int maxHp;
   final String? monName;
   final String? frame;
+  final List<Aura> auras;
 
   const Monster({
-    required this.monMapId,
-    required this.monId,
-    required this.isAlive,
-    required this.currentHp,
-    required this.maxHp,
+    this.monMapId = -1,
+    this.monId = '',
+    this.isAlive = false,
+    this.currentHp = 0,
+    this.maxHp = 0,
     this.monName,
     this.frame,
+    this.auras = const [],
   });
 
   String? get getMonName => monName == null ? monName : normalize(monName!);
 
   factory Monster.fromJson(Map<String, dynamic> json) {
     return Monster(
-      monMapId: json['MonMapID'] as String,
+      monMapId: json['MonMapID'] as int,
       monId: json['MonID'] as String,
       isAlive: (json['intHP'] as int) > 0,
       currentHp: json['intHP'] as int,
       maxHp: json['intHPMax'] as int,
       monName: null,
       frame: null,
+      auras: [],
     );
   }
 
@@ -44,17 +49,19 @@ class Monster {
       'maxHp': maxHp,
       'monName': monName,
       'frame': frame,
+      'auras': auras.map((aura) => aura.toJson()).toList(),
     };
   }
 
   Monster copyWith({
-    String? monMapId,
+    int? monMapId,
     String? monId,
     bool? isAlive,
     int? currentHp,
     int? maxHp,
     String? monName,
     String? frame,
+    List<Aura>? auras,
   }) {
     return Monster(
       monMapId: monMapId ?? this.monMapId,
@@ -64,6 +71,7 @@ class Monster {
       maxHp: maxHp ?? this.maxHp,
       monName: monName ?? this.monName,
       frame: frame ?? this.frame,
+      auras: auras ?? this.auras,
     );
   }
 }

@@ -38,8 +38,8 @@ class _LogCardState extends State<LogCard> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color:
           widget.msg.packetSender == PacketSender.server
-              ? null
-              : Color(0xFFEDE2F7),
+              ? Color(0xFFEDE2F7)
+              : null,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {

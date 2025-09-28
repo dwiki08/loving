@@ -14,10 +14,9 @@ final afkIdhqProvider = Provider<AfkIdhq>((ref) {
 });
 
 class AfkIdhq extends BasePreset {
-  final GeneralCmd generalCmd;
   final MapCmd mapCmd;
 
-  AfkIdhq({required this.generalCmd, required this.mapCmd});
+  AfkIdhq({required super.generalCmd, required this.mapCmd});
 
   final _xPosTextController = TextEditingController(text: '450');
   final _yPosTextController = TextEditingController(text: '500');
@@ -28,19 +27,12 @@ class AfkIdhq extends BasePreset {
   @override
   Future<void> start() async {
     super.start();
-    generalCmd.addLog('Starting \'$name\' preset...');
     await mapCmd.joinHouse(house: 'idhq');
     await mapCmd.jumpToCell(cell: 'r1a');
     await mapCmd.walkTo(
       x: int.parse(_xPosTextController.text),
       y: int.parse(_yPosTextController.text),
     );
-  }
-
-  @override
-  Future<void> stop() async {
-    super.stop();
-    generalCmd.addLog('Stopping \'$name\' preset...');
   }
 
   @override

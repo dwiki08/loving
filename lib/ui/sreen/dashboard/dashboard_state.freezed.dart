@@ -12,7 +12,6 @@ part of 'dashboard_state.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$DashboardState {
 
@@ -89,7 +88,6 @@ abstract mixin class $DashboardStateCopyWith<$Res> {
 
 
 }
-
 /// @nodoc
 class _$DashboardStateCopyWithImpl<$Res>
     implements $DashboardStateCopyWith<$Res> {
@@ -231,7 +229,6 @@ abstract mixin class _$DashboardStateCopyWith<$Res>
 
 
 }
-
 /// @nodoc
 class __$DashboardStateCopyWithImpl<$Res>
     implements _$DashboardStateCopyWith<$Res> {

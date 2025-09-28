@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loving/loving/command/general_cmd.dart';
 import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/loving/data/player_notifier.dart';
 import 'package:loving/model/login_model.dart';
 import 'package:loving/preset/base_preset.dart';
+import 'package:loving/preset/supplies_the_wheel.dart';
+import 'package:loving/preset/void_aura.dart';
 
 import '../../../loving/socket/socket_client.dart';
 import '../../../preset/afk_idhq.dart';
@@ -12,13 +15,21 @@ final dashboardNotifierProvider =
     NotifierProvider<DashboardNotifier, DashboardState>(DashboardNotifier.new);
 
 class DashboardNotifier extends Notifier<DashboardState> {
+  GeneralCmd get _generalCmd => ref.read(generalCmdProvider);
+
   @override
   DashboardState build() {
-    return DashboardState(presets: [ref.read(afkIdhqProvider)]);
+    return DashboardState(
+      presets: [
+        ref.read(afkIdhqProvider),
+        ref.read(voidAuraProvider),
+        ref.read(suppliesTheWheelProvider),
+      ],
+    );
   }
 
   void sendChat(String text) async {
-    ref.read(socketProvider).sendChat(text);
+    _generalCmd.sendChat(message: text);
   }
 
   Future<void> connect(String server, LoginModel loginModel) async {

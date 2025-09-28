@@ -3,11 +3,29 @@ import 'package:flutter/material.dart';
 import 'aura.dart';
 import 'item.dart';
 
-enum PlayerStatus { alive, dead, inCombat }
+enum PlayerStatus {
+  dead, //0
+  alive, //1
+  inCombat, //2
+}
+
+PlayerStatus stateToPlayerStatus(int state) {
+  switch (state) {
+    case 0:
+      return PlayerStatus.dead;
+    case 1:
+      return PlayerStatus.alive;
+    case 2:
+      return PlayerStatus.inCombat;
+    default:
+      return PlayerStatus.alive;
+  }
+}
 
 @immutable
 class Player {
   final String charId;
+  final int userId;
   final String username;
   final List<Item> equipments;
   final String cell;
@@ -26,10 +44,11 @@ class Player {
 
   const Player({
     this.charId = '',
+    this.userId = -1,
     this.username = '',
     this.equipments = const [],
-    this.cell = 'Blank',
-    this.pad = 'Spawn',
+    this.cell = '',
+    this.pad = '',
     this.posX = 0,
     this.posY = 0,
     this.inventoryItems = const [],
@@ -43,8 +62,14 @@ class Player {
     this.auras = const [],
   });
 
+  double getHPinPercentage() {
+    if (maxHP == 0) return 0.0;
+    return (currentHP / maxHP) * 100;
+  }
+
   Player copyWith({
     String? charId,
+    int? userId,
     String? username,
     List<Item>? equipments,
     String? cell,
@@ -63,6 +88,7 @@ class Player {
   }) {
     return Player(
       charId: charId ?? this.charId,
+      userId: userId ?? this.userId,
       username: username ?? this.username,
       equipments: equipments ?? this.equipments,
       cell: cell ?? this.cell,
@@ -84,6 +110,7 @@ class Player {
   Map<String, dynamic> toJson() {
     return {
       'charId': charId,
+      'userId': userId,
       'username': username,
       'equipments': equipments.map((e) => e.toJson()).toList(),
       'cell': cell,
@@ -97,7 +124,7 @@ class Player {
       'maxHP': maxHP,
       'currentHP': currentHP,
       'currentMP': currentMP,
-      'status': status.index,
+      'status': status.name,
       'auras': auras.map((e) => e.toJson()).toList(),
     };
   }
