@@ -21,6 +21,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   late final ProviderSubscription _loginSub;
   LoginModel? loginModel;
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
@@ -91,11 +92,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   enabled: !loginState.isLoading,
                   controller: _passwordTextController,
                   textInputAction: TextInputAction.next,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   decoration: textFieldDecoration(
                     context: context,
                     icon: const Icon(Icons.password),
                     label: 'Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
                 ),
                 TextField(

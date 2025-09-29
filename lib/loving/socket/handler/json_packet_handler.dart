@@ -38,18 +38,12 @@ class JsonPacketHandler {
         case 'moveToArea':
           final uoBranch = data["uoBranch"];
           if (uoBranch is List<dynamic>) {
-            log("me: ${player.username.toLowerCase()}");
             for (final item in uoBranch) {
-              log("item: $item");
               if (item["uoName"] == player.username.toLowerCase()) {
                 _playerNotifier.update(
                   (player) => player.copyWith(
                     cell: item["strFrame"] as String? ?? player.cell,
                     pad: item["strPad"] as String? ?? player.pad,
-                    posY: item["ty"] as int? ?? player.posY,
-                    posX: item["tx"] as int? ?? player.posX,
-                    maxHP: item["intHPMax"] as int? ?? player.maxHP,
-                    currentHP: item["intHP"] as int? ?? player.currentHP,
                     status: PlayerStatus.alive,
                   ),
                 );
@@ -73,9 +67,9 @@ class JsonPacketHandler {
           if (unm == player.username.toLowerCase()) {
             _playerNotifier.update(
               (player) => player.copyWith(
-                maxHP: data['o']['intHPMax'] as int,
-                currentMP: data['o']['intMP'] as int,
-                status: stateToPlayerStatus(data['o']['intSate'] as int),
+                maxHP: (data['o']['intHPMax'] as int?) ?? player.maxHP,
+                currentHP: (data['o']['intHP'] as int?) ?? player.currentHP,
+                currentMP: (data['o']['intMP'] as int?) ?? player.currentMP,
               ),
             );
           }
@@ -92,6 +86,18 @@ class JsonPacketHandler {
           _areaMapNotifier.updateMonster(
             monster.copyWith(isAlive: status > 0, currentHp: currentHp),
           );
+          break;
+
+        case 'stu':
+          _playerNotifier.update((player) {
+            final sta = data['sta'];
+            final cdr = sta?['\$tha'] as num? ?? player.skillCdr;
+            final manaCost = sta?['\$cmc'] as num? ?? player.skillManaCost;
+            return player.copyWith(
+              skillCdr: cdr < 0.5 ? 0.5 : cdr, // set max CDR to 50%
+              skillManaCost: manaCost,
+            );
+          });
           break;
 
         case 'ct':
@@ -158,16 +164,27 @@ class JsonPacketHandler {
 
           if (p != null) {
             p.forEach((username, playerData) {
-              final player = _areaMapNotifier.getPlayer(username);
+              final areaPlayer = _areaMapNotifier.getPlayer(username);
               final data = playerData as Map<String, dynamic>;
               _areaMapNotifier.updatePlayer(
-                player.copyWith(
-                  currentHP: (data["intHP"] ?? player.currentHP) as int,
+                areaPlayer.copyWith(
+                  currentHP: (data["intHP"] ?? areaPlayer.currentHP) as int,
                   status: stateToPlayerStatus(
-                    (data["intState"] ?? player.status.index) as int,
+                    (data["intState"] ?? areaPlayer.status.index) as int,
                   ),
                 ),
               );
+              if (username == player.username) {
+                _playerNotifier.update(
+                  (player) => player.copyWith(
+                    currentHP: playerData["intHP"] ?? player.currentHP,
+                    currentMP: playerData["intMP"] ?? player.currentMP,
+                    status: stateToPlayerStatus(
+                      playerData["intState"] ?? player.status.index,
+                    ),
+                  ),
+                );
+              }
             });
           }
 
@@ -185,10 +202,8 @@ class JsonPacketHandler {
               final charId = itemData['CharID'] as String;
               final totalGold = itemData['intGold'] as double;
               _playerNotifier.update(
-                (player) => player.copyWith(
-                  charId: charId,
-                  totalGold: totalGold,
-                ),
+                (player) =>
+                    player.copyWith(charId: charId, totalGold: totalGold),
               );
               _loadBankItems(charId, socket.loginInfo.sToken);
             }
@@ -237,10 +252,10 @@ class JsonPacketHandler {
     final api = _ref.read(aqwApiProvider);
     api.getBankItems(charId, token).then((result) {
       result.fold(
-            (e) {
+        (e) {
           log('loadBankItems err: ${e.message}');
         },
-            (items) {
+        (items) {
           _playerNotifier.update((player) => player.copyWith(bankItems: items));
         },
       );

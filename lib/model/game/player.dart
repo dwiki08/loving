@@ -41,6 +41,8 @@ class Player {
   final int currentMP;
   final PlayerStatus status;
   final List<Aura> auras;
+  final num skillCdr;
+  final num skillManaCost;
 
   const Player({
     this.charId = '',
@@ -57,9 +59,11 @@ class Player {
     this.totalGold = 0,
     this.maxHP = 0,
     this.currentHP = 0,
-    this.currentMP = 0,
+    this.currentMP = 100,
     this.status = PlayerStatus.alive,
     this.auras = const [],
+    this.skillCdr = 1.0,
+    this.skillManaCost = 1.0,
   });
 
   double getHPinPercentage() {
@@ -85,6 +89,8 @@ class Player {
     int? currentMP,
     PlayerStatus? status,
     List<Aura>? auras,
+    num? skillCdr,
+    num? skillManaCost,
   }) {
     return Player(
       charId: charId ?? this.charId,
@@ -104,6 +110,8 @@ class Player {
       currentMP: currentMP ?? this.currentMP,
       status: status ?? this.status,
       auras: auras ?? this.auras,
+      skillCdr: skillCdr ?? this.skillCdr,
+      skillManaCost: skillManaCost ?? this.skillManaCost,
     );
   }
 
@@ -124,6 +132,8 @@ class Player {
       'maxHP': maxHP,
       'currentHP': currentHP,
       'currentMP': currentMP,
+      'skillCdr': skillCdr,
+      'skillManaCost': skillManaCost,
       'status': status.name,
       'auras': auras.map((e) => e.toJson()).toList(),
     };
