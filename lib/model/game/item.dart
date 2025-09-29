@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../common/utils.dart';
 
 enum ItemType {
-  classType('ar'),
+  class_('ar'),
   armor('co'),
   cape('ba'),
   helm('he'),
@@ -45,7 +45,7 @@ class Item {
   final bool isTemp;
   final int cost;
   final bool isEquipped;
-  final double charItemId;
+  final num charItemId; // server response can be 'int' and 'double'
   final String? shopItemId;
   final int? enhPatternId;
 
@@ -63,10 +63,12 @@ class Item {
     required this.enhPatternId,
   });
 
+  String get nameNormalize => normalize(name);
+
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
       id: json['ItemID'],
-      name: normalize(json['sName']),
+      name: json['sName'],
       type: ItemType.fromString(json['sES']),
       qty: json['iQty'],
       isAcs: json['bCoins'] == 1,
@@ -85,7 +87,7 @@ class Item {
     return {
       'id': id,
       'name': name,
-      'type': type.value,
+      'type': type.name,
       'qty': qty,
       'isAcs': isAcs,
       'isTemp': isTemp,

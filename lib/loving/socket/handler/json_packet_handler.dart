@@ -10,6 +10,7 @@ import '../../../model/game/item.dart';
 import '../../../model/game/monster.dart';
 import '../../../model/game/player.dart';
 import '../../../model/packet.dart';
+import '../../api/aqw_api.dart';
 import '../../data/player_notifier.dart';
 import '../socket_client.dart';
 
@@ -181,12 +182,15 @@ class JsonPacketHandler {
             final username = itemData['strUsername'] as String;
             final accessLevel = itemData['intAccessLevel'] as String;
             if (player.username.toLowerCase() == username.toLowerCase()) {
+              final charId = itemData['CharID'] as String;
+              final totalGold = itemData['intGold'] as double;
               _playerNotifier.update(
                 (player) => player.copyWith(
-                  charId: itemData['CharID'] as String,
-                  totalGold: itemData['intGold'] as double,
+                  charId: charId,
+                  totalGold: totalGold,
                 ),
               );
+              _loadBankItems(charId, socket.loginInfo.sToken);
             }
           }
           if (socket.isInventoryLoaded == false) {
@@ -198,7 +202,6 @@ class JsonPacketHandler {
               '%xt%zm%retrieveInventory%${areaMap.areaId}%${socket.user.id}%',
             );
             socket.isInventoryLoaded = true;
-            // TODO need to load bank items data from API
           }
           break;
 
@@ -228,6 +231,20 @@ class JsonPacketHandler {
         packetSender: PacketSender.server,
       );
     }
+  }
+
+  void _loadBankItems(String charId, String token) {
+    final api = _ref.read(aqwApiProvider);
+    api.getBankItems(charId, token).then((result) {
+      result.fold(
+            (e) {
+          log('loadBankItems err: ${e.message}');
+        },
+            (items) {
+          _playerNotifier.update((player) => player.copyWith(bankItems: items));
+        },
+      );
+    });
   }
 
   List<AreaPlayer> _processPlayerData(Map<String, dynamic> data) {

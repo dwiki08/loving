@@ -87,6 +87,8 @@ abstract mixin class $DashboardStateCopyWith<$Res> {
   });
 
 
+
+
 }
 /// @nodoc
 class _$DashboardStateCopyWithImpl<$Res>
@@ -226,6 +228,8 @@ abstract mixin class _$DashboardStateCopyWith<$Res>
     bool isRunning, bool showDebug, ErrorResult? error, List<
         BasePreset> presets, BasePreset? selectedPreset, Player? player, AreaMap? map
   });
+
+
 
 
 }

@@ -2,7 +2,6 @@ import 'package:loving/model/login_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../loving/api/aqw_api.dart';
-import '../../../loving/socket/socket_client.dart';
 
 part 'login_notifier.g.dart';
 
@@ -19,7 +18,6 @@ class LoginNotifier extends _$LoginNotifier {
     state = const AsyncValue.loading();
 
     final api = ref.read(aqwApiProvider);
-    ref.read(socketProvider);
 
     final result = await api.getLoginInfo(
       username: username,

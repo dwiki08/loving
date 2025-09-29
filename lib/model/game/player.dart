@@ -35,7 +35,7 @@ class Player {
   final List<Item> inventoryItems;
   final List<Item> tempInventoryItems;
   final List<Item> bankItems;
-  final double totalGold;
+  final num totalGold;
   final int maxHP;
   final int currentHP;
   final int currentMP;
@@ -79,7 +79,7 @@ class Player {
     List<Item>? inventoryItems,
     List<Item>? tempInventoryItems,
     List<Item>? bankItems,
-    double? totalGold,
+    num? totalGold,
     int? maxHP,
     int? currentHP,
     int? currentMP,
