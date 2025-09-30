@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loving/model/error_result.dart';
 import 'package:loving/model/login_model.dart';
+import 'package:loving/model/server_list.dart';
 import 'package:loving/ui/theme.dart';
 
 import '../dashboard/dashboard_screen.dart';
@@ -17,7 +18,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _usernameTextController = TextEditingController(text: '');
   final _passwordTextController = TextEditingController(text: '');
-  final _serverTextController = TextEditingController(text: 'Yorumi');
+  ServerList _selectedServer = ServerList.yorumi;
 
   late final ProviderSubscription _loginSub;
   LoginModel? loginModel;
@@ -35,7 +36,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               MaterialPageRoute(
                 builder:
                     (_) => DashboardScreen(
-                      server: _serverTextController.text,
+                      server: _selectedServer.value,
                       loginModel: data as LoginModel,
                     ),
               ),
@@ -111,15 +112,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                 ),
-                TextField(
-                  enabled: !loginState.isLoading,
-                  controller: _serverTextController,
-                  textInputAction: TextInputAction.next,
+                DropdownButtonFormField<ServerList>(
+                  enableFeedback: !loginState.isLoading,
+                  value: _selectedServer,
                   decoration: textFieldDecoration(
                     context: context,
                     icon: const Icon(Icons.list_alt),
                     label: 'Server',
                   ),
+                  items:
+                      ServerList.values
+                          .map(
+                            (server) => DropdownMenuItem(
+                              value: server,
+                              child: Text(server.value),
+                            ),
+                          )
+                          .toList(),
+                  onChanged:
+                      loginState.isLoading
+                          ? null
+                          : (value) => setState(() {
+                            if (value != null) {
+                              _selectedServer = value;
+                            }
+                          }),
                 ),
                 loginState.isLoading
                     ? const CircularProgressIndicator()
@@ -132,7 +149,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               .login(
                                 username: _usernameTextController.text,
                                 password: _passwordTextController.text,
-                                server: _serverTextController.text,
+                                server: _selectedServer.value,
                               );
                         },
                         child: const Text('Login'),
