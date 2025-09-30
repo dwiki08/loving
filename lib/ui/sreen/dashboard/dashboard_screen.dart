@@ -116,6 +116,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final notifier = ref.read(dashboardNotifierProvider.notifier);
+    final username = ref.watch(dashboardNotifierProvider).player?.username;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -124,9 +125,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Loving - ${ref.watch(dashboardNotifierProvider).player?.username}',
-              ),
+              Text('Loving ${username != null ? ': $username' : ''}'),
               Row(
                 children: [
                   _socketStatusIcon(_socketState),

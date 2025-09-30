@@ -13,6 +13,7 @@ import 'package:loving/model/packet.dart';
 import '../../common/utils.dart';
 import '../../model/login_model.dart';
 import '../../model/socket_state.dart';
+import '../data/map_area_notifier.dart';
 import '../data/player_notifier.dart';
 import 'handler/json_packet_handler.dart';
 
@@ -55,8 +56,12 @@ class SocketClient {
   late final User _user;
   late final _streamPackets = StreamController<Packet>.broadcast();
   late final _streamChats = StreamController<Chat>.broadcast();
+  late final _connectionStateController =
+      StreamController<SocketState>.broadcast();
 
-  final _connectionStateController = StreamController<SocketState>.broadcast();
+  PlayerNotifier get _playerNotifier => _ref.read(playerProvider.notifier);
+
+  AreaMapNotifier get _areaMapNotifier => _ref.read(areaMapProvider.notifier);
 
   LoginModel get loginInfo => _loginModel;
 
@@ -86,11 +91,10 @@ class SocketClient {
   }
 
   Future<void> close() async {
+    _playerNotifier.clear();
+    _areaMapNotifier.clear();
+    await _socket.flush();
     await _socket.close();
-    await _streamPackets.close();
-    await _streamChats.close();
-    _connectionStateController.add(SocketState.disconnected);
-    await _connectionStateController.close();
   }
 
   Future<void> connectToServer({
@@ -149,8 +153,7 @@ class SocketClient {
           _connectionStateController.add(SocketState.disconnected);
         },
         onDone: () {
-          _socket.destroy();
-          _connectionStateController.add(SocketState.disconnected);
+          log("Socket connection closed");
         },
       );
     } catch (e) {

@@ -53,7 +53,7 @@ class DashboardNotifier extends Notifier<DashboardState> {
   }
 
   Future<void> disconnect() async {
-    await ref.read(socketProvider).close();
+    ref.invalidate(socketProvider);
   }
 
   void toggleDebug(bool b) {
