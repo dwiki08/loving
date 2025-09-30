@@ -69,10 +69,7 @@ class SocketClient {
   Stream<SocketState> get connectionStateStream =>
       _connectionStateController.stream;
 
-  bool isInventoryLoaded = false;
-  bool isAllLoaded = false;
-
-  bool isClientReady() => isAllLoaded;
+  bool isCharacterLoadComplete = false;
 
   void setUserData(User user) {
     _user = user;

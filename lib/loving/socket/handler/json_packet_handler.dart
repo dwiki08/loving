@@ -25,6 +25,8 @@ class JsonPacketHandler {
 
   AreaMapNotifier get _areaMapNotifier => _ref.read(areaMapProvider.notifier);
 
+  bool isInventoryLoaded = false;
+
   void handle(SocketClient socket, String msg) {
     final areaMap = _ref.read(areaMapProvider);
     final player = _ref.read(playerProvider);
@@ -210,29 +212,33 @@ class JsonPacketHandler {
           break;
 
         case 'initUserDatas':
+          var myCharId = '';
           for (final i in data['a'] as List) {
             final itemData = i['data'] as Map<String, dynamic>;
             final username = itemData['strUsername'] as String;
             final accessLevel = itemData['intAccessLevel'] as String;
+            final charId = itemData['CharID'] as String;
+            final totalGold = itemData['intGold'] as double;
             if (player.username.toLowerCase() == username.toLowerCase()) {
-              final charId = itemData['CharID'] as String;
-              final totalGold = itemData['intGold'] as double;
               _playerNotifier.update(
                 (player) =>
                     player.copyWith(charId: charId, totalGold: totalGold),
               );
-              _loadBankItems(charId, socket.loginInfo.sToken);
+              myCharId = charId;
             }
           }
-          if (socket.isInventoryLoaded == false) {
+          if (isInventoryLoaded == false) {
             socket.addLog(
               message: 'Retrieving inventory and bank...',
               packetSender: PacketSender.client,
             );
+            // retrieve inventory items
             socket.sendPacket(
               '%xt%zm%retrieveInventory%${areaMap.areaId}%${socket.user.id}%',
             );
-            socket.isInventoryLoaded = true;
+            // retrieve bank items
+            _loadBankItems(myCharId, socket.loginInfo.sToken);
+            isInventoryLoaded = true;
           }
           break;
 
@@ -252,7 +258,7 @@ class JsonPacketHandler {
             message: 'Character load completed.',
             packetSender: PacketSender.server,
           );
-          socket.isAllLoaded = true;
+          socket.isCharacterLoadComplete = true;
           break;
       }
     } catch (e) {
@@ -272,6 +278,7 @@ class JsonPacketHandler {
           log('loadBankItems err: ${e.message}');
         },
         (items) {
+          log('loadBankItems success with ${items.length} items');
           _playerNotifier.update((player) => player.copyWith(bankItems: items));
         },
       );

@@ -28,7 +28,7 @@ class XmlPacketHandler {
       );
     }
     if (msg.contains('joinOK')) {
-      if (!socket.isClientReady()) {
+      if (!socket.isCharacterLoadComplete) {
         final user = _extractUsers(msg).firstWhere((user) {
           return user.username.toLowerCase() ==
               socket.loginInfo.username.toLowerCase();

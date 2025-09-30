@@ -33,14 +33,17 @@ class DashboardNotifier extends Notifier<DashboardState> {
   }
 
   Future<void> connect(String server, LoginModel loginModel) async {
+    // connect to socket
     await ref
         .read(socketProvider)
         .connectToServer(server: server, loginModel: loginModel);
 
-    while (!ref.read(socketProvider).isClientReady()) {
+    // waiting for character load complete
+    while (!ref.read(socketProvider).isCharacterLoadComplete) {
       await Future.delayed(Duration(microseconds: 200));
     }
 
+    // set player and map data
     state = state.copyWith(
       player: ref.read(playerProvider),
       map: ref.read(areaMapProvider),
