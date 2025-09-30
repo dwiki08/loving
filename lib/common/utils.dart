@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 final defaultDelay = Duration(milliseconds: 700);
 
-String getTimestamp() {
-  return DateTime.now().toIso8601String().substring(11, 23);
+String getTimestamp({DateTime? dateTime, String? format = 'HH:mm:ss.SSS'}) {
+  return DateFormat(format).format(dateTime ?? DateTime.now());
 }
 
 String normalize(String text) {

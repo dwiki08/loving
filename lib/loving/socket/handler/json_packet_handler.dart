@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/model/game/area_player.dart';
@@ -9,6 +10,7 @@ import '../../../model/game/aura.dart';
 import '../../../model/game/item.dart';
 import '../../../model/game/monster.dart';
 import '../../../model/game/player.dart';
+import '../../../model/game/skill.dart';
 import '../../../model/packet.dart';
 import '../../api/aqw_api.dart';
 import '../../data/player_notifier.dart';
@@ -100,6 +102,17 @@ class JsonPacketHandler {
           });
           break;
 
+        case 'sAct':
+          final skillsJson = data["actions"]["active"] as List<dynamic>;
+          final skills =
+              skillsJson
+                  .mapIndexed((index, item) => Skill.fromJson(index, item))
+                  .toList();
+          _playerNotifier.update((player) {
+            return player.copyWith(skills: skills);
+          });
+          break;
+
         case 'ct':
           final anims = data["anims"]; // skill anims
           final a = data["a"]; // auras
@@ -187,7 +200,10 @@ class JsonPacketHandler {
               }
             });
           }
+          break;
 
+        case 'clearAuras':
+          _playerNotifier.clearAuras();
           break;
 
         case 'initUserData':

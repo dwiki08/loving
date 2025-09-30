@@ -36,4 +36,8 @@ class PlayerNotifier extends StateNotifier<Player> {
       auras: state.auras.where((a) => a.name != auraName).toList(),
     );
   }
+
+  void clearAuras() {
+    state = state.copyWith(auras: []);
+  }
 }

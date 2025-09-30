@@ -42,6 +42,8 @@ dependencies:
   go_router: ^15.1.2
   flutter_json_viewer: ^1.0.1
   flutter_background_service: ^5.0.5
+  collection: ^1.18.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

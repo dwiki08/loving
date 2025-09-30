@@ -12,7 +12,7 @@ class Aura {
   });
 
   // in milliseconds
-  int get remainingTimeMs {
+  int get remainingDuration {
     if (startTime == null) return duration * 1000;
     final currentTime = DateTime.now();
     final elapsedTime = currentTime.difference(startTime!).inMilliseconds;

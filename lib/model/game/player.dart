@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loving/model/game/skill.dart';
 
 import 'aura.dart';
 import 'item.dart';
@@ -43,6 +44,7 @@ class Player {
   final List<Aura> auras;
   final num skillCdr;
   final num skillManaCost;
+  final List<Skill> skills;
 
   const Player({
     this.charId = '',
@@ -64,9 +66,10 @@ class Player {
     this.auras = const [],
     this.skillCdr = 1.0,
     this.skillManaCost = 1.0,
+    this.skills = const [],
   });
 
-  double getHPinPercentage() {
+  double get currentHPinPercent {
     if (maxHP == 0) return 0.0;
     return (currentHP / maxHP) * 100;
   }
@@ -91,6 +94,7 @@ class Player {
     List<Aura>? auras,
     num? skillCdr,
     num? skillManaCost,
+    List<Skill>? skills,
   }) {
     return Player(
       charId: charId ?? this.charId,
@@ -112,6 +116,7 @@ class Player {
       auras: auras ?? this.auras,
       skillCdr: skillCdr ?? this.skillCdr,
       skillManaCost: skillManaCost ?? this.skillManaCost,
+      skills: skills ?? this.skills,
     );
   }
 
@@ -136,6 +141,7 @@ class Player {
       'skillManaCost': skillManaCost,
       'status': status.name,
       'auras': auras.map((e) => e.toJson()).toList(),
+      'skills': skills.map((e) => e.toJson()).toList(),
     };
   }
 }

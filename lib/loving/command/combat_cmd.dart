@@ -15,4 +15,6 @@ class CombatCmd {
   CombatCmd(this._ref, this._client);
 
   AreaMap get _areaMap => _ref.read(areaMapProvider);
+
+  Future<void> useSkill({required int index}) async {}
 }
