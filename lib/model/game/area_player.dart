@@ -48,13 +48,13 @@ class AreaPlayer {
 
   factory AreaPlayer.fromJson(Map<String, dynamic> json) {
     return AreaPlayer(
-      username: json['strUsername'] as String,
-      id: json['entID'] as int,
-      cell: json['strFrame'] as String,
-      pad: json['strPad'] as String,
-      status: stateToPlayerStatus(json['intState'] as int),
-      maxHP: json['intHPMax'] as int,
-      currentHP: json['intHP'] as int,
+      username: json['strUsername'],
+      id: json['entID'],
+      cell: json['strFrame'],
+      pad: json['strPad'],
+      status: stateToPlayerStatus(json['intState'] as int? ?? 1),
+      maxHP: json['intHPMax'],
+      currentHP: json['intHP'],
     );
   }
 

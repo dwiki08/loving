@@ -37,6 +37,8 @@ class JsonPacketHandler {
       if (data == null) return;
       final cmd = data["cmd"];
 
+      // log('JsonPacketHandler cmd: $cmd');
+
       switch (cmd) {
         // on moved to new area map
         case 'moveToArea':
@@ -57,7 +59,8 @@ class JsonPacketHandler {
 
           _areaMapNotifier.update(
             (areaMap) => areaMap.copyWith(
-              name: data["areaName"],
+              name: data["strMapName"],
+              roomNumber: int.parse((data["areaName"] as String).split('-')[1]),
               areaId: data["areaId"].toString(),
               monsters: _processMonsterData(data),
               areaPlayers: _processPlayerData(data),
@@ -67,7 +70,7 @@ class JsonPacketHandler {
 
         // on player spawned in the area
         case 'uotls':
-          final unm = data['unm'];
+          final unm = data['unm'] as String?;
           if (unm == player.username.toLowerCase()) {
             _playerNotifier.update(
               (player) => player.copyWith(
@@ -76,15 +79,33 @@ class JsonPacketHandler {
                 currentMP: (data['o']['intMP'] as int?) ?? player.currentMP,
               ),
             );
+          } else {
+            // add new area player data
+            if (data['o']['strUsername'] != null) {
+              _areaMapNotifier.addOrUpdatePlayer(
+                AreaPlayer.fromJson(data['o'] as Map<String, dynamic>),
+              );
+            }
+
+            // update area player data
+            final areaPlayer =
+                areaMap.areaPlayers
+                    .where((element) => element.username == unm)
+                    .firstOrNull;
+            if (areaPlayer != null) {
+              _areaMapNotifier.addOrUpdatePlayer(
+                areaPlayer.copyWith(
+                  maxHP: (data['o']['intHPMax'] as int?) ?? player.maxHP,
+                  currentHP: (data['o']['intHP'] as int?) ?? player.currentHP,
+                ),
+              );
+            }
           }
-          _areaMapNotifier.updatePlayer(
-            AreaPlayer.fromJson(data['o'] as Map<String, dynamic>),
-          );
           break;
 
         // on monster spawned in the area
         case 'mtls':
-          final monster = _areaMapNotifier.getMonster(data['id'] as int);
+          final monster = areaMap.getMonster(data['id'] as int);
           final currentHp = data['o']['intHP'] as int;
           final status = data['o']['intState'] as int;
           _areaMapNotifier.updateMonster(
@@ -123,6 +144,31 @@ class JsonPacketHandler {
           final sarsa = data["sarsa"]; // output damage and heal
           final sara = data["sara"]; // input damage and heal
 
+          // skill animations
+          if (anims != null) {
+            anims.forEach((anim) {
+              final cInf = anim['cInf'] as String;
+              final strl = anim['strl'] as String?;
+              if (cInf.startsWith("p:") && strl != null) {
+                final userId = cInf.substring(2);
+                if (int.parse(userId) == player.userId) {
+                  _playerNotifier.updateSkill((skill) {
+                    final cd =
+                        (skill.cooldown.inMilliseconds * player.skillCdr)
+                            .toInt();
+                    final nextUsage = DateTime.now().add(
+                      Duration(milliseconds: cd),
+                    );
+                    return skill.strl == strl
+                        ? skill.copyWith(nextUsage: nextUsage)
+                        : skill;
+                  });
+                }
+              }
+            });
+          }
+
+          // update auras
           if (a != null) {
             a.forEach((action) {
               final tInf = action['tInf'] as String;
@@ -162,9 +208,10 @@ class JsonPacketHandler {
             });
           }
 
+          // update monsters data
           if (m != null) {
             m.forEach((monMapId, monCondition) {
-              final monster = _areaMapNotifier.getMonster(int.parse(monMapId));
+              final monster = areaMap.getMonster(int.parse(monMapId));
               final condition = monCondition as Map<String, dynamic>;
               final currentHp =
                   (condition["intHP"] ?? monster.currentHp) as int;
@@ -177,11 +224,12 @@ class JsonPacketHandler {
             });
           }
 
+          // update players data
           if (p != null) {
             p.forEach((username, playerData) {
               final areaPlayer = _areaMapNotifier.getPlayer(username);
               final data = playerData as Map<String, dynamic>;
-              _areaMapNotifier.updatePlayer(
+              _areaMapNotifier.addOrUpdatePlayer(
                 areaPlayer.copyWith(
                   currentHP: (data["intHP"] ?? areaPlayer.currentHP) as int,
                   status: stateToPlayerStatus(
@@ -189,7 +237,7 @@ class JsonPacketHandler {
                   ),
                 ),
               );
-              if (username == player.username) {
+              if (username.toLowerCase() == player.username.toLowerCase()) {
                 _playerNotifier.update(
                   (player) => player.copyWith(
                     currentHP: playerData["intHP"] ?? player.currentHP,
@@ -218,7 +266,7 @@ class JsonPacketHandler {
             final username = itemData['strUsername'] as String;
             final accessLevel = itemData['intAccessLevel'] as String;
             final charId = itemData['CharID'] as String;
-            final totalGold = itemData['intGold'] as double;
+            final totalGold = itemData['intGold'];
             if (player.username.toLowerCase() == username.toLowerCase()) {
               _playerNotifier.update(
                 (player) =>
@@ -335,7 +383,7 @@ class JsonPacketHandler {
           final newFrame = frameMap[monster.monMapId.toString()];
 
           // Buat instance baru dengan data yang diperbarui
-          return monster.copyWith(monName: newName, frame: newFrame);
+          return monster.copyWith(monName: newName, cell: newFrame);
         }).toList();
 
     return finalMonsters;

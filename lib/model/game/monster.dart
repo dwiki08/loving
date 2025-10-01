@@ -11,7 +11,7 @@ class Monster {
   final int currentHp;
   final int maxHp;
   final String? monName;
-  final String? frame;
+  final String? cell;
   final List<Aura> auras;
 
   const Monster({
@@ -21,11 +21,11 @@ class Monster {
     this.currentHp = 0,
     this.maxHp = 0,
     this.monName,
-    this.frame,
+    this.cell,
     this.auras = const [],
   });
 
-  String? get getMonName => monName == null ? monName : normalize(monName!);
+  String get getMonName => normalize(monName ?? '');
 
   factory Monster.fromJson(Map<String, dynamic> json) {
     return Monster(
@@ -35,7 +35,7 @@ class Monster {
       currentHp: json['intHP'] as int,
       maxHp: json['intHPMax'] as int,
       monName: null,
-      frame: null,
+      cell: null,
       auras: [],
     );
   }
@@ -48,7 +48,7 @@ class Monster {
       'currentHp': currentHp,
       'maxHp': maxHp,
       'monName': monName,
-      'frame': frame,
+      'cell': cell,
       'auras': auras.map((aura) => aura.toJson()).toList(),
     };
   }
@@ -60,7 +60,7 @@ class Monster {
     int? currentHp,
     int? maxHp,
     String? monName,
-    String? frame,
+    String? cell,
     List<Aura>? auras,
   }) {
     return Monster(
@@ -70,7 +70,7 @@ class Monster {
       currentHp: currentHp ?? this.currentHp,
       maxHp: maxHp ?? this.maxHp,
       monName: monName ?? this.monName,
-      frame: frame ?? this.frame,
+      cell: cell ?? this.cell,
       auras: auras ?? this.auras,
     );
   }

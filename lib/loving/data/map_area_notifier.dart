@@ -24,10 +24,6 @@ class AreaMapNotifier extends StateNotifier<AreaMap> {
     update((areaMap) => areaMap.copyWith(monsters: monsters));
   }
 
-  Monster getMonster(int monMapId) {
-    return state.monsters.firstWhere((element) => element.monMapId == monMapId);
-  }
-
   void updateMonster(Monster monster) {
     final index = state.monsters.indexWhere(
       (element) => element.monMapId == monster.monMapId,
@@ -38,7 +34,7 @@ class AreaMapNotifier extends StateNotifier<AreaMap> {
   }
 
   void addOrUpdateMonsterAura(int monMapId, List<Aura> auras) {
-    final monster = getMonster(monMapId);
+    final monster = state.getMonster(monMapId);
     final current = [...monster.auras];
     for (final aura in auras) {
       final index = current.indexWhere((a) => a.name == aura.name);
@@ -52,7 +48,7 @@ class AreaMapNotifier extends StateNotifier<AreaMap> {
   }
 
   void removeMonsterAura(int monMapId, String auraName) {
-    final monster = getMonster(monMapId);
+    final monster = state.getMonster(monMapId);
     updateMonster(
       monster.copyWith(
         auras: monster.auras.where((a) => a.name != auraName).toList(),
@@ -61,7 +57,7 @@ class AreaMapNotifier extends StateNotifier<AreaMap> {
   }
 
   void clearMonsterAura(int monMapId) {
-    final monster = getMonster(monMapId);
+    final monster = state.getMonster(monMapId);
     updateMonster(monster.copyWith(auras: []));
   }
 
@@ -71,7 +67,7 @@ class AreaMapNotifier extends StateNotifier<AreaMap> {
     );
   }
 
-  void updatePlayer(AreaPlayer player) {
+  void addOrUpdatePlayer(AreaPlayer player) {
     final index = state.areaPlayers.indexWhere(
       (element) => element.id == player.id,
     );

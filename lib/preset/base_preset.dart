@@ -20,6 +20,7 @@ abstract class BasePreset {
 
   Future<void> stop() async {
     _isRunning = false;
+    await generalCmd?.leaveCombat();
     generalCmd?.addLog('\'$name\' is stopped.');
   }
 

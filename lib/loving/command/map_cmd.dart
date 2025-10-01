@@ -32,6 +32,7 @@ class MapCmd {
   }
 
   Future<void> joinMap({required String mapName, int? roomNumber}) async {
+    if (_map.name.toLowerCase() == mapName.toLowerCase()) return;
     _socketClient.addLog(
       message: "Joining map: $mapName",
       packetSender: PacketSender.client,
@@ -54,6 +55,7 @@ class MapCmd {
   }
 
   Future<void> jumpToCell({required String cell, String pad = "Left"}) async {
+    if (_player.cell.toLowerCase() == cell.toLowerCase()) return;
     _socketClient.addLog(
       message: "Moving to cell: $cell pad: $pad",
       packetSender: PacketSender.client,
@@ -64,6 +66,7 @@ class MapCmd {
   }
 
   Future<void> walkTo({required int x, required int y}) async {
+    if (_player.posX == x && _player.posY == y) return;
     _socketClient.addLog(
       message: "Walking to: $x, $y",
       packetSender: PacketSender.client,

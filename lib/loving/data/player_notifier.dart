@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../model/game/aura.dart';
 import '../../model/game/player.dart';
+import '../../model/game/skill.dart';
 
 final playerProvider = StateNotifierProvider<PlayerNotifier, Player>((ref) {
   return PlayerNotifier();
@@ -16,6 +17,15 @@ class PlayerNotifier extends StateNotifier<Player> {
 
   void update(Player Function(Player) updateFn) {
     state = updateFn(state);
+  }
+
+  void updateSkill(Skill Function(Skill) updateFn) {
+    final skills = [...state.skills];
+    for (final skill in skills) {
+      final index = skills.indexOf(skill);
+      skills[index] = updateFn(skill);
+    }
+    state = state.copyWith(skills: skills);
   }
 
   void addOrUpdateAura(List<Aura> auras) {
