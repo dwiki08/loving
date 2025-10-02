@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loving/model/game/skill.dart';
 
+import '../../common/utils.dart';
 import 'aura.dart';
 import 'item.dart';
 
@@ -36,6 +37,7 @@ class Player {
   final List<Item> inventoryItems;
   final List<Item> tempInventoryItems;
   final List<Item> bankItems;
+  final List<Item> droppedItems;
   final num totalGold;
   final int maxHP;
   final int currentHP;
@@ -58,6 +60,7 @@ class Player {
     this.inventoryItems = const [],
     this.tempInventoryItems = const [],
     this.bankItems = const [],
+    this.droppedItems = const [],
     this.totalGold = 0,
     this.maxHP = 0,
     this.currentHP = 0,
@@ -68,6 +71,25 @@ class Player {
     this.skillManaCost = 1.0,
     this.skills = const [],
   });
+
+  Item? getInventoryItem(int itemId) =>
+      inventoryItems.where((item) => item.id == itemId).firstOrNull;
+
+  Item? getBankItem(int itemId) =>
+      bankItems.where((item) => item.id == itemId).firstOrNull;
+
+  Item? getDroppedItem(int itemId) =>
+      droppedItems.where((item) => item.id == itemId).firstOrNull;
+
+  Item? getDroppedItemByName(String itemName) =>
+      droppedItems
+          .where((item) => item.nameNormalize == normalize(itemName))
+          .firstOrNull;
+
+  Item? getEquipment(String itemName) =>
+      equipments
+          .where((item) => item.nameNormalize == normalize(itemName))
+          .firstOrNull;
 
   double get currentHPinPercent {
     if (maxHP == 0) return 0.0;
@@ -86,6 +108,7 @@ class Player {
     List<Item>? inventoryItems,
     List<Item>? tempInventoryItems,
     List<Item>? bankItems,
+    List<Item>? droppedItems,
     num? totalGold,
     int? maxHP,
     int? currentHP,
@@ -108,6 +131,7 @@ class Player {
       inventoryItems: inventoryItems ?? this.inventoryItems,
       tempInventoryItems: tempInventoryItems ?? this.tempInventoryItems,
       bankItems: bankItems ?? this.bankItems,
+      droppedItems: droppedItems ?? this.droppedItems,
       totalGold: totalGold ?? this.totalGold,
       maxHP: maxHP ?? this.maxHP,
       currentHP: currentHP ?? this.currentHP,
@@ -133,6 +157,7 @@ class Player {
       'inventoryItems': inventoryItems.map((e) => e.toJson()).toList(),
       'tempInventoryItems': tempInventoryItems.map((e) => e.toJson()).toList(),
       'bankItems': bankItems.map((e) => e.toJson()).toList(),
+      'droppedItems': droppedItems.map((e) => e.toJson()).toList(),
       'totalGold': totalGold,
       'maxHP': maxHP,
       'currentHP': currentHP,

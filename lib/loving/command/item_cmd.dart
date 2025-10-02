@@ -5,13 +5,13 @@ import '../data/player_notifier.dart';
 import '../socket/socket_client.dart';
 import 'base_cmd.dart';
 
-final questCmdProvider = Provider<QuestCmd>((ref) {
+final itemCmdProvider = Provider<ItemCmd>((ref) {
   final client = ref.read(socketProvider);
-  return QuestCmd(ref, client);
+  return ItemCmd(ref, client);
 });
 
-class QuestCmd extends BaseCmd {
-  QuestCmd(super.ref, super.client);
+class ItemCmd extends BaseCmd {
+  ItemCmd(super.ref, super.client);
 
   Player get _player => ref.read(playerProvider);
 }

@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loving/loving/command/general_cmd.dart';
 import 'package:loving/preset/base_preset.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../loving/command/map_cmd.dart';
 import '../ui/theme.dart';
 
 final afkIdhqProvider = Provider<AfkIdhq>((ref) {
-  final generalCmd = ref.read(generalCmdProvider);
-  final mapCmd = ref.read(mapCmdProvider);
-  return AfkIdhq(generalCmd: generalCmd, mapCmd: mapCmd);
+  return AfkIdhq(ref: ref);
 });
 
 class AfkIdhq extends BasePreset {
-  final MapCmd mapCmd;
-
-  AfkIdhq({required super.generalCmd, required this.mapCmd});
+  AfkIdhq({required super.ref});
 
   final _xPosTextController = TextEditingController(text: '450');
   final _yPosTextController = TextEditingController(text: '500');

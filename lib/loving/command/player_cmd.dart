@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loving/loving/data/map_area_notifier.dart';
+import 'package:loving/loving/command/base_cmd.dart';
 import 'package:loving/loving/socket/socket_client.dart';
-import 'package:loving/model/game/area_map.dart';
 
 import '../../model/game/player.dart';
 import '../data/player_notifier.dart';
@@ -11,17 +10,20 @@ final playerCmdProvider = Provider<PlayerCmd>((ref) {
   return PlayerCmd(ref, client);
 });
 
-class PlayerCmd {
-  final Ref _ref;
-  final SocketClient _client;
+class PlayerCmd extends BaseCmd {
+  PlayerCmd(super.ref, super.client);
 
-  PlayerCmd(this._ref, this._client);
-
-  Player get _player => _ref.read(playerProvider);
-
-  AreaMap get _areaMap => _ref.read(areaMapProvider);
+  Player get _player => ref.read(playerProvider);
 
   Player getPlayer() {
     return _player;
+  }
+
+  Future<void> acceptDroppedItem(String itemName) async {
+    final item = _player.getDroppedItemByName(itemName);
+    if (item != null) {
+      client.sendPacket('%xt%zm%getDrop%${_player.userId}%${item.id}%');
+      await delay();
+    }
   }
 }

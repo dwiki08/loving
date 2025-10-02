@@ -75,7 +75,7 @@ class Item {
       isTemp: json['bTemp'] == 1,
       cost: json['iCost'],
       isEquipped: json['bEquip'] == 1,
-      charItemId: json['CharItemID'],
+      charItemId: json['CharItemID'] as num? ?? -1,
       // shopItemId: json['ShopItemID'] as String?,
       // enhPatternId: json['EnhPatternID'] as int?,
       shopItemId: null,
@@ -99,5 +99,33 @@ class Item {
       // 'shopItemId': shopItemId,
       // 'enhPatternId': enhPatternId,
     };
+  }
+
+  Item copyWith({
+    int? id,
+    String? name,
+    ItemType? type,
+    int? qty,
+    bool? isAcs,
+    bool? isTemp,
+    int? cost,
+    bool? isEquipped,
+    num? charItemId,
+    String? shopItemId,
+    int? enhPatternId,
+  }) {
+    return Item(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      qty: qty ?? this.qty,
+      isAcs: isAcs ?? this.isAcs,
+      isTemp: isTemp ?? this.isTemp,
+      cost: cost ?? this.cost,
+      isEquipped: isEquipped ?? this.isEquipped,
+      charItemId: charItemId ?? this.charItemId,
+      shopItemId: shopItemId ?? this.shopItemId,
+      enhPatternId: enhPatternId ?? this.enhPatternId,
+    );
   }
 }

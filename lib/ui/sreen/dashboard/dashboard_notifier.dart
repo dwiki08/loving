@@ -4,6 +4,7 @@ import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/loving/data/player_notifier.dart';
 import 'package:loving/model/login_model.dart';
 import 'package:loving/preset/base_preset.dart';
+import 'package:loving/preset/battleunder_b.dart';
 import 'package:loving/preset/supplies_the_wheel.dart';
 import 'package:loving/preset/void_aura.dart';
 
@@ -21,6 +22,7 @@ class DashboardNotifier extends Notifier<DashboardState> {
   DashboardState build() {
     return DashboardState(
       presets: [
+        ref.read(battleUnderBProvider),
         ref.read(afkIdhqProvider),
         ref.read(voidAuraProvider),
         ref.read(suppliesTheWheelProvider),

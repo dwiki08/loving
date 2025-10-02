@@ -3,32 +3,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loving/preset/base_preset.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final suppliesTheWheelProvider = Provider<SuppliesTheWheel>((ref) {
-  return SuppliesTheWheel(ref: ref);
+import '../loving/handler/item_drop_handler.dart';
+
+final battleUnderBProvider = Provider<BattleUnderB>((ref) {
+  return BattleUnderB(ref: ref);
 });
 
-class SuppliesTheWheel extends BasePreset {
-  SuppliesTheWheel({required super.ref});
+class BattleUnderB extends BasePreset {
+  BattleUnderB({required super.ref});
 
   @override
-  String get name => "Supplies The Wheel";
+  String get name => "Battle Under B";
 
   @override
   Future<void> start() async {
     super.start();
 
-    final targetPriority = ["Staff of Inversion", "Escherion"];
+    ref.read(
+      itemDropHandlerProvider(["Bone Dust", "Undead Essence", "Undead Energy"]),
+    );
+
     List<int> skills = [0, 1, 2, 0, 3, 4];
     int i = 0;
 
-    await mapCmd.joinMap(mapName: "escherion", roomNumber: 9099);
-    await mapCmd.jumpToCell(cell: "Boss");
+    await mapCmd.joinMap(mapName: "battleunderb", roomNumber: 9099);
 
     while (isRunning) {
-      await combatCmd.useSkill(
-        index: skills[i],
-        targetPriority: targetPriority,
-      );
+      await combatCmd.useSkill(index: skills[i]);
+      await Future.delayed(const Duration(milliseconds: 100));
       i++;
       if (i >= skills.length) {
         i = 0;
@@ -45,7 +47,7 @@ class SuppliesTheWheel extends BasePreset {
             width: double.infinity,
             child: Padding(
               padding: EdgeInsetsGeometry.all(16),
-              child: Text("Supplies the Wheel Quest Farm"),
+              child: Text("Test Bot"),
             ),
           ),
         ),

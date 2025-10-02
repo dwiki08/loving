@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loving/common/utils.dart';
 import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/model/game/area_player.dart';
 
@@ -213,8 +214,7 @@ class JsonPacketHandler {
             m.forEach((monMapId, monCondition) {
               final monster = areaMap.getMonster(int.parse(monMapId));
               final condition = monCondition as Map<String, dynamic>;
-              final currentHp =
-                  (condition["intHP"] ?? monster.currentHp) as int;
+              final currentHp = condition["intHP"] ?? monster.currentHp;
               _areaMapNotifier.updateMonster(
                 monster.copyWith(currentHp: currentHp, isAlive: currentHp > 0),
               );
@@ -254,6 +254,61 @@ class JsonPacketHandler {
 
         case 'clearAuras':
           _playerNotifier.clearAuras();
+          break;
+
+        // any items dropped
+        case 'dropItem':
+          final items = data['items'] as Map<String, dynamic>;
+          items.forEach((key, value) {
+            final item = Item.fromJson(value as Map<String, dynamic>);
+            _playerNotifier.addDroppedItem(item);
+          });
+          break;
+
+        // accepting dropped items
+        case 'getDrop':
+          if (data['bSuccess'] == 1) {
+            final itemId = data['ItemID'] as int;
+            final item = player.getDroppedItem(itemId);
+            if (item != null) {
+              if (data['bBank'] == 1) {
+                _playerNotifier.addBankItem(item);
+                _playerNotifier.removeDroppedItem(item);
+              } else {
+                _playerNotifier.addInventoryItem(item);
+                _playerNotifier.removeDroppedItem(item);
+              }
+            }
+          }
+          break;
+
+        // adding items to inventory, temporary inventory or bank
+        case 'addItems':
+          final items = data['items'] as Map<String, dynamic>;
+          items.forEach((key, value) {
+            final isInBank = value['bBank'] == 1;
+            if (isInBank) {
+              final item = player.getBankItem(int.parse(key));
+              if (item != null) {
+                log("update bank item: ${prettyJson(value)}");
+                _playerNotifier.addBankItem(
+                  item.copyWith(qty: value["iQtyNow"]),
+                );
+              }
+            } else {
+              final item = player.getInventoryItem(int.parse(key));
+              if (item != null) {
+                _playerNotifier.addInventoryItem(
+                  item.copyWith(qty: value["iQtyNow"]),
+                );
+              } else {
+                log("new item: ${prettyJson(value)}");
+                _playerNotifier.addInventoryItem(
+                  Item.fromJson(value as Map<String, dynamic>),
+                );
+              }
+            }
+          });
           break;
 
         case 'initUserData':
@@ -307,6 +362,13 @@ class JsonPacketHandler {
             packetSender: PacketSender.server,
           );
           socket.isCharacterLoadComplete = true;
+          break;
+
+        case 'playerDeath':
+          socket.addLog(message: 'DEATH', packetSender: PacketSender.server);
+          _playerNotifier.update(
+            (player) => player.copyWith(status: PlayerStatus.dead),
+          );
           break;
       }
     } catch (e) {

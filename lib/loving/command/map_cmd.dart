@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loving/loving/command/base_cmd.dart';
 
 import '../../common/utils.dart';
 import '../../model/game/area_map.dart';
@@ -13,19 +14,14 @@ final mapCmdProvider = Provider<MapCmd>((ref) {
   return MapCmd(ref, client);
 });
 
-class MapCmd {
-  final Ref _ref;
-  final SocketClient _socketClient;
+class MapCmd extends BaseCmd {
+  MapCmd(super.ref, super.client);
 
-  MapCmd(this._ref, this._socketClient);
+  Player get _player => ref.read(playerProvider);
 
-  Player get _player => _ref.read(playerProvider);
+  AreaMap get _map => ref.read(areaMapProvider);
 
-  AreaMap get _map => _ref.read(areaMapProvider);
-
-  PlayerNotifier get _playerNotifier => _ref.read(playerProvider.notifier);
-
-  AreaMapNotifier get _areaMapNotifier => _ref.read(areaMapProvider.notifier);
+  PlayerNotifier get _playerNotifier => ref.read(playerProvider.notifier);
 
   String currentMap() {
     return _map.name;
@@ -33,11 +29,11 @@ class MapCmd {
 
   Future<void> joinMap({required String mapName, int? roomNumber}) async {
     if (_map.name.toLowerCase() == mapName.toLowerCase()) return;
-    _socketClient.addLog(
+    client.addLog(
       message: "Joining map: $mapName",
       packetSender: PacketSender.client,
     );
-    _socketClient.sendPacket(
+    client.sendPacket(
       roomNumber != null
           ? "%xt%zm%cmd%1%tfer%${_player.username}%$mapName-$roomNumber%"
           : "%xt%zm%cmd%1%tfer%${_player.username}%$mapName%",
@@ -46,32 +42,32 @@ class MapCmd {
   }
 
   Future<void> joinHouse({required String house}) async {
-    _socketClient.addLog(
+    client.addLog(
       message: "Joining house: $house",
       packetSender: PacketSender.client,
     );
-    _socketClient.sendPacket("%xt%zm%house%1%$house%");
+    client.sendPacket("%xt%zm%house%1%$house%");
     await Future.delayed(Duration(seconds: 3));
   }
 
   Future<void> jumpToCell({required String cell, String pad = "Left"}) async {
     if (_player.cell.toLowerCase() == cell.toLowerCase()) return;
-    _socketClient.addLog(
+    client.addLog(
       message: "Moving to cell: $cell pad: $pad",
       packetSender: PacketSender.client,
     );
-    _socketClient.sendPacket("%xt%zm%moveToCell%${_map.areaId}%$cell%$pad%");
+    client.sendPacket("%xt%zm%moveToCell%${_map.areaId}%$cell%$pad%");
     _playerNotifier.update((player) => player.copyWith(cell: cell, pad: pad));
     await Future.delayed(defaultDelay);
   }
 
   Future<void> walkTo({required int x, required int y}) async {
     if (_player.posX == x && _player.posY == y) return;
-    _socketClient.addLog(
+    client.addLog(
       message: "Walking to: $x, $y",
       packetSender: PacketSender.client,
     );
-    _socketClient.sendPacket("%xt%zm%mv%${_map.areaId}%$x%$y%10%");
+    client.sendPacket("%xt%zm%mv%${_map.areaId}%$x%$y%10%");
     _playerNotifier.update((player) => player.copyWith(posX: x, posY: y));
     await Future.delayed(defaultDelay);
   }

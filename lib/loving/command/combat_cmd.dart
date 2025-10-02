@@ -6,21 +6,19 @@ import 'package:loving/model/game/area_map.dart';
 
 import '../../model/game/player.dart';
 import '../../model/game/skill.dart';
+import 'base_cmd.dart';
 
 final combatCmdProvider = Provider<CombatCmd>((ref) {
   final client = ref.read(socketProvider);
   return CombatCmd(ref, client);
 });
 
-class CombatCmd {
-  final Ref _ref;
-  final SocketClient _client;
+class CombatCmd extends BaseCmd {
+  CombatCmd(super.ref, super.client);
 
-  CombatCmd(this._ref, this._client);
+  Player get _player => ref.read(playerProvider);
 
-  Player get _player => _ref.read(playerProvider);
-
-  AreaMap get _areaMap => _ref.read(areaMapProvider);
+  AreaMap get _areaMap => ref.read(areaMapProvider);
 
   int _reloadTimeMs = 0;
 
@@ -31,7 +29,7 @@ class CombatCmd {
           return "${skill.ref}>${skill.targetType.value}:$id";
         })
         .join(",");
-    _client.sendPacket("%xt%zm%gar%1%0%$exe%wvz%");
+    client.sendPacket("%xt%zm%gar%1%0%$exe%wvz%");
     await Future.delayed(const Duration(milliseconds: 200));
   }
 
@@ -76,8 +74,12 @@ class CombatCmd {
         _areaMap.areaPlayers
             .where((element) => element.cell == currentCell)
             .toList();
-    final playerIds = players.map((e) => e.id).toList();
-    playerIds.insert(0, myId);
+    final playerIds =
+        players
+            .map((e) => e.id)
+            .where((id) => id != myId) // Filter out myId
+            .toList();
+    playerIds.insert(0, myId); // Add myId to the beginning
     return playerIds;
   }
 
@@ -90,15 +92,15 @@ class CombatCmd {
   /// [reloadDelay] The delay in milliseconds before the skill can be used again (default is 500ms).
   Future<void> useSkill({
     required int index,
-    required List<String> targetPriority,
-    int reloadDelay = 500,
+    List<String> targetPriority = const [],
+    int reloadDelay = 700,
   }) async {
     if (index < 0 || index > 5) {
       return;
     }
 
     final skill = _player.skills[index];
-    if (skill.remainingCooldown > 0 &&
+    if (skill.remainingCooldown > 0 ||
         skill.mana * _player.skillCdr > _player.currentMP) {
       return;
     }

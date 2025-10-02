@@ -30,6 +30,9 @@ class FlashPacketHandler {
     if (msg.contains('%server%')) {
       s.addLog(message: msg.split('%')[4], packetSender: PacketSender.server);
     }
+    if (msg.contains('warning')) {
+      s.addLog(message: msg.split('%')[4], packetSender: PacketSender.server);
+    }
     if (msg.contains('mvts')) {
       // %xt%uotls%-1%sulcata2%mvts:-1,px:500,py:375,strPad:Left,bResting:false,mvtd:0,tx:0,ty:0,strFrame:r1a%
     }
