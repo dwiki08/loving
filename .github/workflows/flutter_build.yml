@@ -26,7 +26,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.24.3" # ganti sesuai versi Flutter project kamu
+          flutter-version: "3.32.8"
 
       # 4. Get dependencies
       - name: Install dependencies
