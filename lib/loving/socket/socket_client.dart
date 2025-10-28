@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:io';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/common/extension.dart';
 import 'package:loving/loving/socket/handler/flash_packet_handler.dart';
 import 'package:loving/loving/socket/handler/xml_packet_handler.dart';

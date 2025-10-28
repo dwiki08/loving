@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/loving/command/combat_cmd.dart';
 import 'package:loving/loving/command/player_cmd.dart';
 import 'package:loving/loving/command/quest_cmd.dart';

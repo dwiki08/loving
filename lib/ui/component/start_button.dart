@@ -22,10 +22,9 @@ class StartButton extends StatelessWidget {
           onStart();
         }
       },
-      icon:
-          isRunning
-              ? Icon(Icons.stop_circle_outlined, color: Colors.red)
-              : Icon(Icons.play_circle_outline, color: Colors.green),
+      icon: isRunning
+          ? Icon(Icons.stop_circle_outlined, color: Colors.red)
+          : Icon(Icons.play_circle_outline, color: Colors.green),
     );
   }
 }

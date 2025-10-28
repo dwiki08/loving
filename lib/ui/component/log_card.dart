@@ -31,8 +31,7 @@ class LogCard extends HookWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: msg.packetSender == PacketSender.server ? Color(0xFFEDE2F7)
-              : null,
+      color: msg.packetSender == PacketSender.server ? Color(0xFFEDE2F7) : null,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {

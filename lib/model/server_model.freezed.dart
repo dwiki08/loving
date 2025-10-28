@@ -15,46 +15,57 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ServerModel {
 
- String get sName; String get sIP; int get iPort;
-/// Create a copy of ServerModel
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$ServerModelCopyWith<ServerModel> get copyWith => _$ServerModelCopyWithImpl<ServerModel>(this as ServerModel, _$identity);
+  String get sName;
+
+  String get sIP;
+
+  int get iPort;
+
+  /// Create a copy of ServerModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $ServerModelCopyWith<ServerModel> get copyWith =>
+      _$ServerModelCopyWithImpl<ServerModel>(this as ServerModel, _$identity);
 
   /// Serializes this ServerModel to a JSON map.
   Map<String, dynamic> toJson();
 
 
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServerModel&&(identical(other.sName, sName) || other.sName == sName)&&(identical(other.sIP, sIP) || other.sIP == sIP)&&(identical(other.iPort, iPort) || other.iPort == iPort));
-}
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is ServerModel &&
+            (identical(other.sName, sName) || other.sName == sName) &&
+            (identical(other.sIP, sIP) || other.sIP == sIP) &&
+            (identical(other.iPort, iPort) || other.iPort == iPort));
+  }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode => Object.hash(runtimeType,sName,sIP,iPort);
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, sName, sIP, iPort);
 
-@override
-String toString() {
-  return 'ServerModel(sName: $sName, sIP: $sIP, iPort: $iPort)';
-}
+  @override
+  String toString() {
+    return 'ServerModel(sName: $sName, sIP: $sIP, iPort: $iPort)';
+  }
 
 
 }
 
 /// @nodoc
-abstract mixin class $ServerModelCopyWith<$Res>  {
-  factory $ServerModelCopyWith(ServerModel value, $Res Function(ServerModel) _then) = _$ServerModelCopyWithImpl;
-@useResult
-$Res call({
- String sName, String sIP, int iPort
-});
+abstract mixin class $ServerModelCopyWith<$Res> {
+  factory $ServerModelCopyWith(ServerModel value,
+      $Res Function(ServerModel) _then) = _$ServerModelCopyWithImpl;
 
-
+  @useResult
+  $Res call({
+    String sName, String sIP, int iPort
+  });
 
 
 }
+
 /// @nodoc
 class _$ServerModelCopyWithImpl<$Res>
     implements $ServerModelCopyWith<$Res> {
@@ -63,16 +74,26 @@ class _$ServerModelCopyWithImpl<$Res>
   final ServerModel _self;
   final $Res Function(ServerModel) _then;
 
-/// Create a copy of ServerModel
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? sName = null,Object? sIP = null,Object? iPort = null,}) {
-  return _then(_self.copyWith(
-sName: null == sName ? _self.sName : sName // ignore: cast_nullable_to_non_nullable
-as String,sIP: null == sIP ? _self.sIP : sIP // ignore: cast_nullable_to_non_nullable
-as String,iPort: null == iPort ? _self.iPort : iPort // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
+  /// Create a copy of ServerModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? sName = null, Object? sIP = null, Object? iPort = null,}) {
+    return _then(_self.copyWith(
+      sName: null == sName
+          ? _self.sName
+          : sName // ignore: cast_nullable_to_non_nullable
+      as String,
+      sIP: null == sIP
+          ? _self.sIP
+          : sIP // ignore: cast_nullable_to_non_nullable
+      as String,
+      iPort: null == iPort
+          ? _self.iPort
+          : iPort // ignore: cast_nullable_to_non_nullable
+      as int,
+    ));
+  }
 
 }
 
@@ -223,55 +244,66 @@ extension ServerModelPatterns on ServerModel {
 
 /// @nodoc
 @JsonSerializable()
-
 class _ServerModel implements ServerModel {
-  const _ServerModel({required this.sName, required this.sIP, required this.iPort});
-  factory _ServerModel.fromJson(Map<String, dynamic> json) => _$ServerModelFromJson(json);
+  const _ServerModel(
+      {required this.sName, required this.sIP, required this.iPort});
 
-@override final  String sName;
-@override final  String sIP;
-@override final  int iPort;
+  factory _ServerModel.fromJson(Map<String, dynamic> json) =>
+      _$ServerModelFromJson(json);
 
-/// Create a copy of ServerModel
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$ServerModelCopyWith<_ServerModel> get copyWith => __$ServerModelCopyWithImpl<_ServerModel>(this, _$identity);
+  @override final String sName;
+  @override final String sIP;
+  @override final int iPort;
 
-@override
-Map<String, dynamic> toJson() {
-  return _$ServerModelToJson(this, );
-}
+  /// Create a copy of ServerModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$ServerModelCopyWith<_ServerModel> get copyWith =>
+      __$ServerModelCopyWithImpl<_ServerModel>(this, _$identity);
 
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServerModel&&(identical(other.sName, sName) || other.sName == sName)&&(identical(other.sIP, sIP) || other.sIP == sIP)&&(identical(other.iPort, iPort) || other.iPort == iPort));
-}
+  @override
+  Map<String, dynamic> toJson() {
+    return _$ServerModelToJson(this,);
+  }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode => Object.hash(runtimeType,sName,sIP,iPort);
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _ServerModel &&
+            (identical(other.sName, sName) || other.sName == sName) &&
+            (identical(other.sIP, sIP) || other.sIP == sIP) &&
+            (identical(other.iPort, iPort) || other.iPort == iPort));
+  }
 
-@override
-String toString() {
-  return 'ServerModel(sName: $sName, sIP: $sIP, iPort: $iPort)';
-}
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, sName, sIP, iPort);
+
+  @override
+  String toString() {
+    return 'ServerModel(sName: $sName, sIP: $sIP, iPort: $iPort)';
+  }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$ServerModelCopyWith<$Res> implements $ServerModelCopyWith<$Res> {
-  factory _$ServerModelCopyWith(_ServerModel value, $Res Function(_ServerModel) _then) = __$ServerModelCopyWithImpl;
-@override @useResult
-$Res call({
- String sName, String sIP, int iPort
-});
+abstract mixin class _$ServerModelCopyWith<$Res>
+    implements $ServerModelCopyWith<$Res> {
+  factory _$ServerModelCopyWith(_ServerModel value,
+      $Res Function(_ServerModel) _then) = __$ServerModelCopyWithImpl;
 
-
+  @override
+  @useResult
+  $Res call({
+    String sName, String sIP, int iPort
+  });
 
 
 }
+
 /// @nodoc
 class __$ServerModelCopyWithImpl<$Res>
     implements _$ServerModelCopyWith<$Res> {
@@ -280,16 +312,26 @@ class __$ServerModelCopyWithImpl<$Res>
   final _ServerModel _self;
   final $Res Function(_ServerModel) _then;
 
-/// Create a copy of ServerModel
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? sName = null,Object? sIP = null,Object? iPort = null,}) {
-  return _then(_ServerModel(
-sName: null == sName ? _self.sName : sName // ignore: cast_nullable_to_non_nullable
-as String,sIP: null == sIP ? _self.sIP : sIP // ignore: cast_nullable_to_non_nullable
-as String,iPort: null == iPort ? _self.iPort : iPort // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
+  /// Create a copy of ServerModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({Object? sName = null, Object? sIP = null, Object? iPort = null,}) {
+    return _then(_ServerModel(
+      sName: null == sName
+          ? _self.sName
+          : sName // ignore: cast_nullable_to_non_nullable
+      as String,
+      sIP: null == sIP
+          ? _self.sIP
+          : sIP // ignore: cast_nullable_to_non_nullable
+      as String,
+      iPort: null == iPort
+          ? _self.iPort
+          : iPort // ignore: cast_nullable_to_non_nullable
+      as int,
+    ));
+  }
 
 
 }

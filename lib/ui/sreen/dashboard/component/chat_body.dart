@@ -54,7 +54,7 @@ class ChatBody extends HookConsumerWidget {
         Expanded(
           child: chats.isEmpty
               ? const Center(child: Text('No chats to show'))
-                  : ChatList(
+              : ChatList(
                   chats: chats.toList()..take(100),
                   scrollController: scrollController,
                 ),

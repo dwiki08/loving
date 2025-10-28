@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/loving/data/player_notifier.dart';
 import 'package:loving/loving/socket/socket_client.dart';
@@ -36,16 +36,16 @@ class CombatCmd extends BaseCmd {
   List<int> _prioritizedMonsterIds(List<String> targetPriority) {
     // Get monsters in current cell
     final currentCell = _player.cell;
-    final monsters =
-        _areaMap
-            .getMonsters(currentCell)
-            .where((monster) => monster.isAlive)
-            .toList();
+    final monsters = _areaMap
+        .getMonsters(currentCell)
+        .where((monster) => monster.isAlive)
+        .toList();
 
     // Sorting monster by priority
     final sortedMonsters = [...monsters];
-    final normalizedPriority =
-        targetPriority.map((e) => e.toLowerCase()).toList();
+    final normalizedPriority = targetPriority
+        .map((e) => e.toLowerCase())
+        .toList();
     sortedMonsters.sort((a, b) {
       String aKey = a.getMonName.toLowerCase();
       String bKey = b.getMonName.toLowerCase();
@@ -70,15 +70,13 @@ class CombatCmd extends BaseCmd {
   List<int> _currentCellPlayerIds() {
     final currentCell = _player.cell;
     final myId = _player.userId;
-    final players =
-        _areaMap.areaPlayers
-            .where((element) => element.cell == currentCell)
-            .toList();
-    final playerIds =
-        players
-            .map((e) => e.id)
-            .where((id) => id != myId) // Filter out myId
-            .toList();
+    final players = _areaMap.areaPlayers
+        .where((element) => element.cell == currentCell)
+        .toList();
+    final playerIds = players
+        .map((e) => e.id)
+        .where((id) => id != myId) // Filter out myId
+        .toList();
     playerIds.insert(0, myId); // Add myId to the beginning
     return playerIds;
   }

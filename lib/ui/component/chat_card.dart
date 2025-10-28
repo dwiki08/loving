@@ -35,8 +35,7 @@ class ChatCard extends HookWidget {
         onLongPress: () {
           Clipboard.setData(
             ClipboardData(
-              text:
-              "[${msg.timestamp}] ${msg.sender} : ${msg.message}",
+              text: "[${msg.timestamp}] ${msg.sender} : ${msg.message}",
             ),
           );
         },
@@ -56,9 +55,7 @@ class ChatCard extends HookWidget {
                     "[${msg.type.name.toUpperCase()}] ",
                     style: TextStyle(color: typeColor),
                   ),
-                  Expanded(
-                    child: Text("${msg.sender} : ${msg.message}"),
-                  ),
+                  Expanded(child: Text("${msg.sender} : ${msg.message}")),
                 ],
               ),
             ],

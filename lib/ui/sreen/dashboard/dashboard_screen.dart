@@ -39,6 +39,8 @@ class DashboardScreen extends HookConsumerWidget {
     final timer = useState<Timer?>(null);
     final duration = useState(Duration.zero);
 
+    final tabController = useTabController(initialLength: 3);
+
     // Initialize connection
     useEffect(() {
       Future.microtask(() async {
@@ -100,87 +102,97 @@ class DashboardScreen extends HookConsumerWidget {
 
     final notifier = ref.read(dashboardNotifierProvider.notifier);
     final username = ref.watch(dashboardNotifierProvider).player?.username;
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: appBarColor,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Loving ${username != null ? ': $username' : ''}'),
-              Row(
-                children: [
-                  SocketStatusIcon(state: socketState.value),
-                  const SizedBox(width: 8),
-                  Text(
-                    formatDuration(duration.value),
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          bottom: TabBar(
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.black45,
-            tabs: const [
-              Tab(text: 'Log', icon: Icon(Icons.info_outline)),
-              Tab(text: 'Chat', icon: Icon(Icons.chat_outlined)),
-              Tab(text: 'Debug', icon: Icon(Icons.bug_report_outlined)),
-            ],
-          ),
-          actions: [
-            LogoutButton(
-              onConfirm: () async {
-                await notifier.disconnect();
-                if (context.mounted) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-        body: TabBarView(
+
+    useEffect(() {
+      tabController.addListener(() {
+        if (!tabController.indexIsChanging) {
+          FocusScope.of(context).unfocus();
+        }
+      });
+
+      return () {
+        tabController.dispose();
+      };
+    }, [tabController]);
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: appBarColor,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            LogBody(
-              packets: logs.value,
-              presets: ref.watch(dashboardNotifierProvider).presets,
-              isRunning: ref.watch(dashboardNotifierProvider).isRunning,
-              selectedPreset: ref
-                  .watch(dashboardNotifierProvider)
-                  .selectedPreset,
-              onSelectPreset: (preset) {
-                notifier.selectPreset(preset);
-              },
-              onToggleStart: () {
-                if (ref.read(dashboardNotifierProvider).isRunning) {
-                  notifier.stop();
-                } else {
-                  notifier.start();
-                }
-              },
-            ),
-            ChatBody(
-              chats: chats.value,
-              onSendChat: (text) {
-                notifier.sendChat(text);
-              },
-            ),
-            DebugBody(
-              packets: debugs.value,
-              player: ref.watch(dashboardNotifierProvider).player,
-              map: ref.watch(dashboardNotifierProvider).map,
-              showDebug: ref.watch(dashboardNotifierProvider).showDebug,
-              onToggleDebug: (b) {
-                notifier.toggleDebug(b);
-              },
+            Text('Loving ${username != null ? ': $username' : ''}'),
+            Row(
+              children: [
+                SocketStatusIcon(state: socketState.value),
+                const SizedBox(width: 8),
+                Text(
+                  formatDuration(duration.value),
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ],
             ),
           ],
         ),
+        bottom: TabBar(
+          controller: tabController,
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.black45,
+          tabs: const [
+            Tab(text: 'Log', icon: Icon(Icons.info_outline)),
+            Tab(text: 'Chat', icon: Icon(Icons.chat_outlined)),
+            Tab(text: 'Debug', icon: Icon(Icons.bug_report_outlined)),
+          ],
+        ),
+        actions: [
+          LogoutButton(
+            onConfirm: () async {
+              await notifier.disconnect();
+              if (context.mounted) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+      body: TabBarView(
+        controller: tabController,
+        children: [
+          LogBody(
+            packets: logs.value,
+            presets: ref.watch(dashboardNotifierProvider).presets,
+            isRunning: ref.watch(dashboardNotifierProvider).isRunning,
+            selectedPreset: ref.watch(dashboardNotifierProvider).selectedPreset,
+            onSelectPreset: (preset) {
+              notifier.selectPreset(preset);
+            },
+            onToggleStart: () {
+              if (ref.read(dashboardNotifierProvider).isRunning) {
+                notifier.stop();
+              } else {
+                notifier.start();
+              }
+            },
+          ),
+          ChatBody(
+            chats: chats.value,
+            onSendChat: (text) {
+              notifier.sendChat(text);
+            },
+          ),
+          DebugBody(
+            packets: debugs.value,
+            player: ref.watch(dashboardNotifierProvider).player,
+            map: ref.watch(dashboardNotifierProvider).map,
+            showDebug: ref.watch(dashboardNotifierProvider).showDebug,
+            onToggleDebug: (b) {
+              notifier.toggleDebug(b);
+            },
+          ),
+        ],
       ),
     );
   }

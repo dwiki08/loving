@@ -50,8 +50,9 @@ class AreaMap {
       'roomNumber': roomNumber,
       'areaId': areaId,
       'monsters': monsters.map((monster) => monster.toJson()).toList(),
-      'areaPlayers':
-          areaPlayers.map((areaPlayer) => areaPlayer.toJson()).toList(),
+      'areaPlayers': areaPlayers
+          .map((areaPlayer) => areaPlayer.toJson())
+          .toList(),
     };
   }
 }

@@ -25,10 +25,9 @@ class Shop {
   }
 
   factory Shop.fromJson(Map<String, dynamic> json) {
-    final itemsList =
-        (json['items'] as List)
-            .map((itemJson) => Item.fromJson(itemJson as Map<String, dynamic>))
-            .toList();
+    final itemsList = (json['items'] as List)
+        .map((itemJson) => Item.fromJson(itemJson as Map<String, dynamic>))
+        .toList();
 
     return Shop(
       shopId: json['ShopID'].toString(),

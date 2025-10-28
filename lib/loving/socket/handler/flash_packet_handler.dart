@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/loving/data/player_notifier.dart';
 import 'package:loving/loving/socket/socket_client.dart';
 

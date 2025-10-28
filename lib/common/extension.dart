@@ -1,5 +1,6 @@
-import 'package:xml/xml.dart';
 import 'dart:convert';
+
+import 'package:xml/xml.dart';
 
 extension XmlValidation on String {
   bool get isValidXml {

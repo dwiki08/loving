@@ -81,15 +81,13 @@ class Player {
   Item? getDroppedItem(int itemId) =>
       droppedItems.where((item) => item.id == itemId).firstOrNull;
 
-  Item? getDroppedItemByName(String itemName) =>
-      droppedItems
-          .where((item) => item.nameNormalize == normalize(itemName))
-          .firstOrNull;
+  Item? getDroppedItemByName(String itemName) => droppedItems
+      .where((item) => item.nameNormalize == normalize(itemName))
+      .firstOrNull;
 
-  Item? getEquipment(String itemName) =>
-      equipments
-          .where((item) => item.nameNormalize == normalize(itemName))
-          .firstOrNull;
+  Item? getEquipment(String itemName) => equipments
+      .where((item) => item.nameNormalize == normalize(itemName))
+      .firstOrNull;
 
   double get currentHPinPercent {
     if (maxHP == 0) return 0.0;

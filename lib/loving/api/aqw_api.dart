@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:either_dart/either.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/model/game/item.dart';
 import 'package:loving/model/login_model.dart';
 
@@ -34,13 +34,9 @@ class AqwApi {
           username: json['login']['unm'],
           sToken: json['login']['sToken'],
           userid: json['login']['userid'].toString(),
-          servers:
-              (json['servers'] as List<dynamic>)
-                  .map(
-                    (data) =>
-                        ServerModel.fromJson(data as Map<String, dynamic>),
-                  )
-                  .toList(),
+          servers: (json['servers'] as List<dynamic>)
+              .map((data) => ServerModel.fromJson(data as Map<String, dynamic>))
+              .toList(),
         );
         return Right(model);
       }
@@ -80,12 +76,9 @@ class AqwApi {
         ),
       );
       if (response.statusCode == 200) {
-        final items =
-            (response.data as List<dynamic>)
-                .map(
-                  (itemData) => Item.fromJson(itemData as Map<String, dynamic>),
-                )
-                .toList();
+        final items = (response.data as List<dynamic>)
+            .map((itemData) => Item.fromJson(itemData as Map<String, dynamic>))
+            .toList();
         return Right(items);
       }
       throw Exception('Failed to load bank: ${response.statusCode}');

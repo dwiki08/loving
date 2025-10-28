@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/model/game/area_map.dart';
 

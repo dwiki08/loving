@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:collection/collection.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/common/utils.dart';
 import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/model/game/area_player.dart';
@@ -89,10 +89,9 @@ class JsonPacketHandler {
             }
 
             // update area player data
-            final areaPlayer =
-                areaMap.areaPlayers
-                    .where((element) => element.username == unm)
-                    .firstOrNull;
+            final areaPlayer = areaMap.areaPlayers
+                .where((element) => element.username == unm)
+                .firstOrNull;
             if (areaPlayer != null) {
               _areaMapNotifier.addOrUpdatePlayer(
                 areaPlayer.copyWith(
@@ -128,10 +127,9 @@ class JsonPacketHandler {
 
         case 'sAct':
           final skillsJson = data["actions"]["active"] as List<dynamic>;
-          final skills =
-              skillsJson
-                  .mapIndexed((index, item) => Skill.fromJson(index, item))
-                  .toList();
+          final skills = skillsJson
+              .mapIndexed((index, item) => Skill.fromJson(index, item))
+              .toList();
           _playerNotifier.update((player) {
             return player.copyWith(skills: skills);
           });
@@ -154,9 +152,8 @@ class JsonPacketHandler {
                 final userId = cInf.substring(2);
                 if (int.parse(userId) == player.userId) {
                   _playerNotifier.updateSkill((skill) {
-                    final cd =
-                        (skill.cooldown.inMilliseconds * player.skillCdr)
-                            .toInt();
+                    final cd = (skill.cooldown.inMilliseconds * player.skillCdr)
+                        .toInt();
                     final nextUsage = DateTime.now().add(
                       Duration(milliseconds: cd),
                     );
@@ -181,8 +178,9 @@ class JsonPacketHandler {
                 if (userId == socket.user.id) {
                   if (actionCmd.contains('aura+')) {
                     final jsonAuras = action['auras'] as List<dynamic>;
-                    final auras =
-                        jsonAuras.map((item) => Aura.fromJson(item)).toList();
+                    final auras = jsonAuras
+                        .map((item) => Aura.fromJson(item))
+                        .toList();
                     _playerNotifier.addOrUpdateAura(auras);
                   }
                   if (actionCmd.contains('aura-')) {
@@ -197,8 +195,9 @@ class JsonPacketHandler {
                 final monMapId = int.parse(tInf.substring(2));
                 if (actionCmd.contains('aura+')) {
                   final jsonAuras = action['auras'] as List<dynamic>;
-                  final auras =
-                      jsonAuras.map((item) => Aura.fromJson(item)).toList();
+                  final auras = jsonAuras
+                      .map((item) => Aura.fromJson(item))
+                      .toList();
                   _areaMapNotifier.addOrUpdateMonsterAura(monMapId, auras);
                 }
                 if (actionCmd.contains('aura-')) {
@@ -346,14 +345,14 @@ class JsonPacketHandler {
           break;
 
         case 'loadInventoryBig':
-          final List<Item> inventoryItems =
-              (data['items'] as List)
-                  .map((item) => Item.fromJson(item as Map<String, dynamic>))
-                  .toList();
+          final List<Item> inventoryItems = (data['items'] as List)
+              .map((item) => Item.fromJson(item as Map<String, dynamic>))
+              .toList();
           _playerNotifier.update(
             (player) => player.copyWith(
-              equipments:
-                  inventoryItems.where((i) => i.isEquipped == true).toList(),
+              equipments: inventoryItems
+                  .where((i) => i.isEquipped == true)
+                  .toList(),
               inventoryItems: inventoryItems,
             ),
           );
@@ -431,22 +430,20 @@ class JsonPacketHandler {
     };
 
     // 3. Buat list Monster awal dari monBranch
-    List<Monster> monsters =
-        monBranch
-            .map((item) => Monster.fromJson(item as Map<String, dynamic>))
-            .toList();
+    List<Monster> monsters = monBranch
+        .map((item) => Monster.fromJson(item as Map<String, dynamic>))
+        .toList();
 
     // 4. "Perbarui" monster dengan nama dan frame menggunakan copyWith
     // Proses ini membuat list baru berdasarkan list sebelumnya
-    List<Monster> finalMonsters =
-        monsters.map((monster) {
-          // Cari nama dan frame di "kamus"
-          final newName = nameMap[monster.monId];
-          final newFrame = frameMap[monster.monMapId.toString()];
+    List<Monster> finalMonsters = monsters.map((monster) {
+      // Cari nama dan frame di "kamus"
+      final newName = nameMap[monster.monId];
+      final newFrame = frameMap[monster.monMapId.toString()];
 
-          // Buat instance baru dengan data yang diperbarui
-          return monster.copyWith(monName: newName, cell: newFrame);
-        }).toList();
+      // Buat instance baru dengan data yang diperbarui
+      return monster.copyWith(monName: newName, cell: newFrame);
+    }).toList();
 
     return finalMonsters;
   }
