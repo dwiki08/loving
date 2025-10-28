@@ -2,25 +2,20 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:loving/common/extension.dart';
 import 'package:xml/xml.dart';
 
 import '../../model/packet.dart';
 
-class LogCard extends StatefulWidget {
+class LogCard extends HookWidget {
   const LogCard({super.key, required this.msg});
 
   final Packet msg;
 
   @override
-  State<LogCard> createState() => _LogCardState();
-}
-
-class _LogCardState extends State<LogCard> {
-  bool isExpanded = false;
-
-  @override
   Widget build(BuildContext context) {
+    final isExpanded = useState(false);
     String formattedMessage(String message) {
       if (message.isValidJson) {
         var jsonObject = json.decode(message);
@@ -36,19 +31,15 @@ class _LogCardState extends State<LogCard> {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color:
-          widget.msg.packetSender == PacketSender.server
-              ? Color(0xFFEDE2F7)
+      color: msg.packetSender == PacketSender.server ? Color(0xFFEDE2F7)
               : null,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          setState(() {
-            isExpanded = !isExpanded;
-          });
+          isExpanded.value = !isExpanded.value;
         },
         onLongPress: () {
-          Clipboard.setData(ClipboardData(text: widget.msg.message));
+          Clipboard.setData(ClipboardData(text: msg.message));
         },
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -56,15 +47,16 @@ class _LogCardState extends State<LogCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "[${widget.msg.timestamp}]",
+                "[${msg.timestamp}]",
                 style: const TextStyle(color: Colors.blue),
               ),
               Text(
-                formattedMessage(widget.msg.message),
+                formattedMessage(msg.message),
                 style: const TextStyle(fontSize: 14),
-                maxLines: isExpanded ? null : 3,
-                overflow:
-                    isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                maxLines: isExpanded.value ? null : 3,
+                overflow: isExpanded.value
+                    ? TextOverflow.visible
+                    : TextOverflow.ellipsis,
               ),
             ],
           ),

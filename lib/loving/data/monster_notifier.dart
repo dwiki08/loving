@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/legacy.dart';
 import 'package:loving/model/game/monster.dart';
 
 final monstersProvider = StateNotifierProvider<MonsterNotifier, List<Monster>>((

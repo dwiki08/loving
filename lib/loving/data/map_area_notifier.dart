@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/legacy.dart';
 
 import '../../model/game/area_map.dart';
 import '../../model/game/area_player.dart';

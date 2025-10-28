@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:loving/model/game/chat.dart';
 
-class ChatCard extends StatefulWidget {
+class ChatCard extends HookWidget {
   const ChatCard({super.key, required this.msg});
 
   final Chat msg;
 
   @override
-  State<ChatCard> createState() => _ChatCardState();
-}
-
-class _ChatCardState extends State<ChatCard> {
-  @override
   Widget build(BuildContext context) {
     Color typeColor;
-    switch (widget.msg.type) {
+    switch (msg.type) {
       case ChatType.world:
         typeColor =
             Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black;
@@ -40,7 +36,7 @@ class _ChatCardState extends State<ChatCard> {
           Clipboard.setData(
             ClipboardData(
               text:
-                  "[${widget.msg.timestamp}] ${widget.msg.sender} : ${widget.msg.message}",
+              "[${msg.timestamp}] ${msg.sender} : ${msg.message}",
             ),
           );
         },
@@ -50,18 +46,18 @@ class _ChatCardState extends State<ChatCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "[${widget.msg.timestamp}]",
+                "[${msg.timestamp}]",
                 style: const TextStyle(color: Colors.blue),
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "[${widget.msg.type.name.toUpperCase()}] ",
+                    "[${msg.type.name.toUpperCase()}] ",
                     style: TextStyle(color: typeColor),
                   ),
                   Expanded(
-                    child: Text("${widget.msg.sender} : ${widget.msg.message}"),
+                    child: Text("${msg.sender} : ${msg.message}"),
                   ),
                 ],
               ),

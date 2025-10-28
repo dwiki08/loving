@@ -1,33 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../model/game/chat.dart';
 import '../../../component/chat_list.dart';
 import '../../../theme.dart';
 
-class ChatBody extends ConsumerStatefulWidget {
+class ChatBody extends HookConsumerWidget {
   const ChatBody({super.key, required this.chats, required this.onSendChat});
 
   final List<Chat> chats;
   final Function(String text) onSendChat;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _ChatContentState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scrollController = useScrollController();
+    final textController = useTextEditingController();
 
-class _ChatContentState extends ConsumerState<ChatBody> {
-  final ScrollController _scrollController = ScrollController();
-  final TextEditingController _textController = TextEditingController();
-
-  @override
-  void dispose() {
-    super.dispose();
-    _scrollController.dispose();
-    _textController.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Column(
       children: [
         Padding(
@@ -36,7 +25,7 @@ class _ChatContentState extends ConsumerState<ChatBody> {
             children: [
               Expanded(
                 child: TextField(
-                  controller: _textController,
+                  controller: textController,
                   decoration: textFieldDecoration(
                     context: context,
                     label: 'Type a message...',
@@ -46,10 +35,10 @@ class _ChatContentState extends ConsumerState<ChatBody> {
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: () {
-                  final text = _textController.text;
+                  final text = textController.text;
                   if (text.isNotEmpty) {
-                    widget.onSendChat(text);
-                    _textController.clear();
+                    onSendChat(text);
+                    textController.clear();
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -63,13 +52,12 @@ class _ChatContentState extends ConsumerState<ChatBody> {
           ),
         ),
         Expanded(
-          child:
-              widget.chats.isEmpty
-                  ? const Center(child: Text('No chats to show'))
+          child: chats.isEmpty
+              ? const Center(child: Text('No chats to show'))
                   : ChatList(
-                    chats: widget.chats.toList()..take(100),
-                    scrollController: _scrollController,
-                  ),
+                  chats: chats.toList()..take(100),
+                  scrollController: scrollController,
+                ),
         ),
       ],
     );

@@ -6,24 +6,60 @@ part of 'login_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(LoginNotifier)
+const loginProvider = LoginNotifierProvider._();
+
+final class LoginNotifierProvider
+    extends $NotifierProvider<LoginNotifier, AsyncValue<LoginModel?>> {
+  const LoginNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'loginProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$loginNotifierHash();
+
+  @$internal
+  @override
+  LoginNotifier create() => LoginNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<LoginModel?> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<LoginModel?>>(value),
+    );
+  }
+}
+
 String _$loginNotifierHash() => r'045067ee8ea07fed4f8ba490ab9b339e2af64c03';
 
-/// See also [LoginNotifier].
-@ProviderFor(LoginNotifier)
-final loginNotifierProvider = AutoDisposeNotifierProvider<
-  LoginNotifier,
-  AsyncValue<LoginModel?>
->.internal(
-  LoginNotifier.new,
-  name: r'loginNotifierProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$loginNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+abstract class _$LoginNotifier extends $Notifier<AsyncValue<LoginModel?>> {
+  AsyncValue<LoginModel?> build();
 
-typedef _$LoginNotifier = AutoDisposeNotifier<AsyncValue<LoginModel?>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref =
+        this.ref as $Ref<AsyncValue<LoginModel?>, AsyncValue<LoginModel?>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<LoginModel?>, AsyncValue<LoginModel?>>,
+              AsyncValue<LoginModel?>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}

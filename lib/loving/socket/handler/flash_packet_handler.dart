@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loving/loving/data/player_notifier.dart';
 import 'package:loving/loving/socket/socket_client.dart';
 
 import '../../../common/utils.dart';
@@ -12,6 +13,8 @@ class FlashPacketHandler {
   FlashPacketHandler({required Ref ref}) : _ref = ref;
 
   AreaMapNotifier get _areaMapNotifier => _ref.read(areaMapProvider.notifier);
+
+  PlayerNotifier get _playerNotifier => _ref.read(playerProvider.notifier);
 
   void handle(SocketClient s, String msg) {
     final areaMap = _ref.read(areaMapProvider);
@@ -40,6 +43,7 @@ class FlashPacketHandler {
       // %xt%exitArea%-1%23344%username%
       _areaMapNotifier.removePlayer(msg.split('%')[5]);
     }
+    if (msg.contains('invalid session')) {}
     if (msg.contains("chatm")) {
       final parts = msg.split('%');
       if (parts.length >= 6) {

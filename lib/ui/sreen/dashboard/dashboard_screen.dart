@@ -1,22 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/model/game/chat.dart';
 import 'package:loving/model/packet.dart';
 import 'package:loving/ui/component/logout_button.dart';
 import 'package:loving/ui/sreen/dashboard/component/chat_body.dart';
 import 'package:loving/ui/sreen/dashboard/component/log_body.dart';
 
+import '../../../common/utils.dart';
 import '../../../di/di_provider.dart';
 import '../../../model/login_model.dart';
 import '../../../model/socket_state.dart';
+import '../../component/socket_status_icon.dart';
 import '../../theme.dart';
 import '../login/login_screen.dart';
 import 'component/debug_body.dart';
 import 'dashboard_notifier.dart';
 
-class DashboardScreen extends ConsumerStatefulWidget {
+class DashboardScreen extends HookConsumerWidget {
   const DashboardScreen({
     super.key,
     required this.server,
@@ -27,94 +30,74 @@ class DashboardScreen extends ConsumerStatefulWidget {
   final LoginModel loginModel;
 
   @override
-  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final logs = useState<List<Packet>>([]);
+    final debugs = useState<List<Packet>>([]);
+    final chats = useState<List<Chat>>([]);
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  final List<Packet> _logs = [];
-  final List<Packet> _debugs = [];
-  final List<Chat> _chats = [];
+    final socketState = useState(SocketState.disconnected);
+    final timer = useState<Timer?>(null);
+    final duration = useState(Duration.zero);
 
-  SocketState _socketState = SocketState.disconnected;
-  Timer? _timer;
-  Duration _duration = Duration.zero;
+    // Initialize connection
+    useEffect(() {
+      Future.microtask(() async {
+        await ref
+            .read(dashboardNotifierProvider.notifier)
+            .connect(server, loginModel);
+      });
+      return null;
+    }, []);
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() async {
-      await ref
-          .read(dashboardNotifierProvider.notifier)
-          .connect(widget.server, widget.loginModel);
-    });
-
-    ref.listenManual<AsyncValue<SocketState>>(socketConnectionStateProvider, (
+    // Socket state listener
+    ref.listen<AsyncValue<SocketState>>(socketConnectionStateProvider, (
       prev,
       next,
     ) {
-      next.whenData((packet) {
-        setState(() {
-          _socketState = packet;
-          if (packet == SocketState.connected) {
-            _startTimer();
-          } else {
-            _stopTimer();
-          }
-        });
+      next.whenData((state) {
+        socketState.value = state;
+        if (state == SocketState.connected) {
+          // Start new timer and duration counting
+          timer.value?.cancel();
+          duration.value = Duration.zero;
+          timer.value = Timer.periodic(const Duration(seconds: 1), (_) {
+            duration.value = Duration(seconds: duration.value.inSeconds + 1);
+          });
+        } else {
+          timer.value?.cancel();
+        }
       });
     });
 
-    ref.listenManual<AsyncValue<Chat>>(socketChatProvider, (prev, next) {
-      next.whenData((packet) {
-        setState(() {
-          _chats.add(packet);
-        });
+    // Chat stream listener
+    ref.listen<AsyncValue<Chat>>(socketChatProvider, (prev, next) {
+      next.whenData((chat) {
+        chats.value = [...chats.value, chat];
       });
     });
 
-    ref.listenManual<AsyncValue<Packet>>(socketPacketProvider, (prev, next) {
+    // Packet stream listener
+    ref.listen<AsyncValue<Packet>>(socketPacketProvider, (prev, next) {
       next.whenData((packet) {
-        setState(() {
-          if ((packet.isDebug && packet.packetSender == PacketSender.client) ||
-              ref.watch(dashboardNotifierProvider).showDebug) {
-            _debugs.add(packet);
-          }
-          if (packet.isLog) {
-            _logs.add(packet);
-          }
-        });
+        final showDebug = ref.watch(dashboardNotifierProvider).showDebug;
+
+        if ((packet.isDebug && packet.packetSender == PacketSender.client) ||
+            showDebug) {
+          debugs.value = [...debugs.value, packet];
+        }
+        if (packet.isLog) {
+          logs.value = [...logs.value, packet];
+        }
       });
     });
-  }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
+    // Timer cleanup on dispose
+    useEffect(() {
+      return () {
+        timer.value?.cancel();
+      };
+    }, []);
 
-  void _startTimer() {
-    _timer?.cancel();
-    _duration = Duration.zero;
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) {
-        setState(() {
-          _duration = Duration(seconds: _duration.inSeconds + 1);
-        });
-      }
-    });
-  }
-
-  void _stopTimer() {
-    _timer?.cancel();
-  }
-
-  String _formatDuration(Duration duration) {
-    return duration.toString().split('.').first.padLeft(8, "0");
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final notifier = ref.read(dashboardNotifierProvider.notifier);
     final username = ref.watch(dashboardNotifierProvider).player?.username;
     return DefaultTabController(
@@ -128,10 +111,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Text('Loving ${username != null ? ': $username' : ''}'),
               Row(
                 children: [
-                  _socketStatusIcon(_socketState),
+                  SocketStatusIcon(state: socketState.value),
                   const SizedBox(width: 8),
                   Text(
-                    _formatDuration(_duration),
+                    formatDuration(duration.value),
                     style: const TextStyle(fontSize: 14),
                   ),
                 ],
@@ -152,9 +135,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             LogoutButton(
               onConfirm: () async {
                 await notifier.disconnect();
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
+                if (context.mounted) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                }
               },
             ),
           ],
@@ -162,11 +147,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         body: TabBarView(
           children: [
             LogBody(
-              packets: _logs,
+              packets: logs.value,
               presets: ref.watch(dashboardNotifierProvider).presets,
               isRunning: ref.watch(dashboardNotifierProvider).isRunning,
-              selectedPreset:
-                  ref.watch(dashboardNotifierProvider).selectedPreset,
+              selectedPreset: ref
+                  .watch(dashboardNotifierProvider)
+                  .selectedPreset,
               onSelectPreset: (preset) {
                 notifier.selectPreset(preset);
               },
@@ -179,13 +165,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               },
             ),
             ChatBody(
-              chats: _chats,
+              chats: chats.value,
               onSendChat: (text) {
                 notifier.sendChat(text);
               },
             ),
             DebugBody(
-              packets: _debugs,
+              packets: debugs.value,
               player: ref.watch(dashboardNotifierProvider).player,
               map: ref.watch(dashboardNotifierProvider).map,
               showDebug: ref.watch(dashboardNotifierProvider).showDebug,
@@ -196,27 +182,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _socketStatusIcon(SocketState state) {
-    Color color;
-    switch (state) {
-      case SocketState.connecting:
-        color = Colors.orange;
-        break;
-      case SocketState.connected:
-        color = Colors.green;
-        break;
-      case SocketState.disconnected:
-        color = Colors.red;
-        break;
-      case SocketState.error:
-        color = Colors.red;
-    }
-    return Container(
-      decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-      child: Icon(Icons.circle, color: color, size: 12),
     );
   }
 }

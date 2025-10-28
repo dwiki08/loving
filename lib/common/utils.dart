@@ -19,3 +19,7 @@ String normalize(String text) {
 String prettyJson(Object? json) {
   return JsonEncoder.withIndent('  ').convert(json);
 }
+
+String formatDuration(Duration duration) {
+  return duration.toString().split('.').first.padLeft(8, "0");
+}

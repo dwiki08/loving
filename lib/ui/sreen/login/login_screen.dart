@@ -1,66 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loving/model/error_result.dart';
-import 'package:loving/model/login_model.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/model/server_list.dart';
 import 'package:loving/ui/theme.dart';
 
-import '../dashboard/dashboard_screen.dart';
 import 'login_notifier.dart';
+import 'use_login_listener.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final usernameTextController = useTextEditingController(text: '');
+    final passwordTextController = useTextEditingController(text: '');
+    final selectedServer = useState(ServerList.yorumi);
+    final isPasswordVisible = useState(false);
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _usernameTextController = TextEditingController(text: '');
-  final _passwordTextController = TextEditingController(text: '');
-  ServerList _selectedServer = ServerList.yorumi;
-
-  late final ProviderSubscription _loginSub;
-  LoginModel? loginModel;
-  bool _isPasswordVisible = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loginSub = ref.listenManual<AsyncValue<LoginModel?>>(
-      loginNotifierProvider,
-      (prev, next) {
-        next.whenOrNull(
-          data: (data) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder:
-                    (_) => DashboardScreen(
-                      server: _selectedServer.value,
-                      loginModel: data as LoginModel,
-                    ),
-              ),
-            );
-          },
-          error: (e, _) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text((e as ErrorResult).message.toString())),
-            );
-          },
-        );
-      },
+    useLoginListener(
+      ref,
+      selectedServer: selectedServer.value,
+      context: context,
     );
-  }
 
-  @override
-  void dispose() {
-    _loginSub.close();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final loginState = ref.watch(loginNotifierProvider);
+    final loginState = ref.watch(loginProvider);
     final isTextFieldFocused = MediaQuery.of(context).viewInsets.bottom != 0;
 
     return Scaffold(
@@ -81,7 +44,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               children: [
                 TextField(
                   enabled: !loginState.isLoading,
-                  controller: _usernameTextController,
+                  controller: usernameTextController,
                   textInputAction: TextInputAction.next,
                   decoration: textFieldDecoration(
                     context: context,
@@ -91,70 +54,66 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 TextField(
                   enabled: !loginState.isLoading,
-                  controller: _passwordTextController,
+                  controller: passwordTextController,
                   textInputAction: TextInputAction.next,
-                  obscureText: !_isPasswordVisible,
+                  obscureText: !isPasswordVisible.value,
                   decoration: textFieldDecoration(
                     context: context,
                     icon: const Icon(Icons.password),
                     label: 'Password',
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible
+                        isPasswordVisible.value
                             ? Icons.visibility
                             : Icons.visibility_off,
                       ),
                       onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
+                        isPasswordVisible.value = !isPasswordVisible.value;
                       },
                     ),
                   ),
                 ),
                 DropdownButtonFormField<ServerList>(
                   enableFeedback: !loginState.isLoading,
-                  value: _selectedServer,
+                  value: selectedServer.value,
                   decoration: textFieldDecoration(
                     context: context,
                     icon: const Icon(Icons.list_alt),
                     label: 'Server',
                   ),
-                  items:
-                      ServerList.values
-                          .map(
-                            (server) => DropdownMenuItem(
-                              value: server,
-                              child: Text(server.value),
-                            ),
-                          )
-                          .toList(),
-                  onChanged:
-                      loginState.isLoading
-                          ? null
-                          : (value) => setState(() {
-                            if (value != null) {
-                              _selectedServer = value;
-                            }
-                          }),
+                  items: ServerList.values
+                      .map(
+                        (server) => DropdownMenuItem(
+                          value: server,
+                          child: Text(server.value),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: loginState.isLoading
+                      ? null
+                      : (value) {
+                          if (value != null) {
+                            selectedServer.value = value;
+                          }
+                        },
                 ),
                 loginState.isLoading
                     ? const CircularProgressIndicator()
                     : SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          ref
-                              .read(loginNotifierProvider.notifier)
-                              .login(
-                                username: _usernameTextController.text,
-                                password: _passwordTextController.text,
-                                server: _selectedServer.value,
-                              );
-                        },
-                        child: const Text('Login'),
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            ref
+                                .read(loginProvider.notifier)
+                                .login(
+                                  username: usernameTextController.text,
+                                  password: passwordTextController.text,
+                                  server: selectedServer.value.value,
+                                );
+                          },
+                          child: const Text('Login'),
+                        ),
                       ),
-                    ),
               ],
             ),
           ),
