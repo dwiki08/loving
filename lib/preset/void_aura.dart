@@ -18,12 +18,11 @@ class VoidAura extends BasePreset {
   @override
   Future<void> start() async {
     super.start();
-    await mapCmd.joinHouse(house: 'idhq');
-    await mapCmd.jumpToCell(cell: 'r1a');
-    await mapCmd.walkTo(
-      x: int.parse(_xPosTextController.text),
-      y: int.parse(_yPosTextController.text),
-    );
+    await questCmd.getQuest([407, 408, 409]);
+    await questCmd.acceptQuest(407);
+    await questCmd.acceptQuest(408);
+    await questCmd.acceptQuest(409);
+    stop();
   }
 
   @override

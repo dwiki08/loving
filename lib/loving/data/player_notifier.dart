@@ -53,6 +53,34 @@ class PlayerNotifier extends StateNotifier<Player> {
     state = state.copyWith(auras: []);
   }
 
+  void decreaseItemQty(int itemId, int qty) {
+    final current = [...state.inventoryItems];
+    final index = current.indexWhere((i) => i.id == itemId);
+    if (index != -1) {
+      final curr = current[index];
+      final newQty = curr.qty - qty;
+      if (newQty <= 0) {
+        current.removeAt(index);
+      } else {
+        current[index] = curr.copyWith(qty: newQty);
+      }
+    }
+    state = state.copyWith(inventoryItems: current);
+
+    final tempCurrent = [...state.tempInventoryItems];
+    final tempIndex = tempCurrent.indexWhere((i) => i.id == itemId);
+    if (tempIndex != -1) {
+      final tempCurr = tempCurrent[tempIndex];
+      final tempNewQty = tempCurr.qty - qty;
+      if (tempNewQty <= 0) {
+        tempCurrent.removeAt(tempIndex);
+      } else {
+        tempCurrent[tempIndex] = tempCurr.copyWith(qty: tempNewQty);
+      }
+    }
+    state = state.copyWith(tempInventoryItems: tempCurrent);
+  }
+
   void addInventoryItem(Item item) {
     final current = [...state.inventoryItems];
     final index = current.indexWhere((i) => i.id == item.id);

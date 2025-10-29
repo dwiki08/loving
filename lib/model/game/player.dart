@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loving/model/game/quest_data.dart';
 import 'package:loving/model/game/skill.dart';
 
 import '../../common/utils.dart';
@@ -48,6 +49,12 @@ class Player {
   final num skillManaCost;
   final List<Skill> skills;
 
+  // list of accepted quest ids
+  final List<int> questTracker;
+
+  // list of loaded quest data from 'getQuests'
+  final List<QuestData> loadedQuestData;
+
   const Player({
     this.charId = '',
     this.userId = -1,
@@ -70,10 +77,25 @@ class Player {
     this.skillCdr = 1.0,
     this.skillManaCost = 1.0,
     this.skills = const [],
+    this.questTracker = const [],
+    this.loadedQuestData = const [],
   });
+
+  QuestData? getLoadedQuestData(int questId) =>
+      loadedQuestData.where((quest) => quest.questId == questId).firstOrNull;
 
   Item? getInventoryItem(int itemId) =>
       inventoryItems.where((item) => item.id == itemId).firstOrNull;
+
+  Item? getTempInventoryItem(int itemId) =>
+      tempInventoryItems.where((item) => item.id == itemId).firstOrNull;
+
+  bool hasItem(int itemId, {int qty = 1}) {
+    final invItem = getInventoryItem(itemId);
+    final tempInvItem = getTempInventoryItem(itemId);
+    final totalQty = (invItem?.qty ?? 0) + (tempInvItem?.qty ?? 0);
+    return totalQty >= qty;
+  }
 
   Item? getBankItem(int itemId) =>
       bankItems.where((item) => item.id == itemId).firstOrNull;
@@ -116,6 +138,8 @@ class Player {
     num? skillCdr,
     num? skillManaCost,
     List<Skill>? skills,
+    List<int>? questTracker,
+    List<QuestData>? loadedQuestData,
   }) {
     return Player(
       charId: charId ?? this.charId,
@@ -139,6 +163,8 @@ class Player {
       skillCdr: skillCdr ?? this.skillCdr,
       skillManaCost: skillManaCost ?? this.skillManaCost,
       skills: skills ?? this.skills,
+      questTracker: questTracker ?? this.questTracker,
+      loadedQuestData: loadedQuestData ?? this.loadedQuestData,
     );
   }
 
@@ -165,6 +191,8 @@ class Player {
       'status': status.name,
       'auras': auras.map((e) => e.toJson()).toList(),
       'skills': skills.map((e) => e.toJson()).toList(),
+      'questTracker': questTracker,
+      'loadedQuestData': loadedQuestData.map((e) => e.toJson()).toList(),
     };
   }
 }

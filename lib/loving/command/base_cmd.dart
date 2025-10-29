@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/loving/socket/socket_client.dart';
@@ -6,9 +8,10 @@ abstract class BaseCmd {
   final Ref _ref;
   final SocketClient _client;
 
-  final Duration defaultDelay = const Duration(milliseconds: 500);
-
   BaseCmd(this._ref, this._client);
+
+  static const defaultDelayInt = 700;
+  static const defaultDelay = Duration(milliseconds: defaultDelayInt);
 
   @protected
   Ref get ref => _ref;
@@ -16,5 +19,41 @@ abstract class BaseCmd {
   @protected
   SocketClient get client => _client;
 
-  Future<void> delay() async => Future.delayed(defaultDelay);
+  Future<void> delay({int milliseconds = defaultDelayInt}) async {
+    await Future.delayed(Duration(milliseconds: milliseconds));
+  }
+
+  Future<bool> waitFor({
+    required Future<bool> Function() condition,
+    Duration timeout = const Duration(seconds: 5),
+    Duration pollInterval = const Duration(milliseconds: 100),
+  }) async {
+    final completer = Completer<bool>();
+    final timer = Timer(timeout, () {
+      if (!completer.isCompleted) {
+        completer.complete(false);
+      }
+    });
+
+    Future<void> poll() async {
+      if (completer.isCompleted) return;
+
+      try {
+        if (await condition()) {
+          completer.complete(true);
+        } else {
+          Timer(pollInterval, poll);
+        }
+      } catch (e) {
+        if (!completer.isCompleted) {
+          completer.completeError(e);
+        }
+      }
+    }
+
+    poll();
+    final result = await completer.future;
+    timer.cancel();
+    return result;
+  }
 }

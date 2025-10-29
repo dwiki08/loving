@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../model/game/player.dart';
@@ -18,7 +16,6 @@ final itemDropHandlerProvider = Provider.family<void, List<String>>((
 
     for (var item in newItems) {
       if (whitelist.contains(item.name)) {
-        log("Dropped: ${item.name}");
         ref.read(playerCmdProvider).acceptDroppedItem(item.name);
       }
     }

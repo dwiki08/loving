@@ -11,6 +11,7 @@ import '../../../model/game/aura.dart';
 import '../../../model/game/item.dart';
 import '../../../model/game/monster.dart';
 import '../../../model/game/player.dart';
+import '../../../model/game/quest_data.dart';
 import '../../../model/game/skill.dart';
 import '../../../model/packet.dart';
 import '../../api/aqw_api.dart';
@@ -253,6 +254,63 @@ class JsonPacketHandler {
 
         case 'clearAuras':
           _playerNotifier.clearAuras();
+          break;
+
+        case 'getQuests':
+          final quests = data['quests'] as Map<String, dynamic>;
+          List<QuestData> questList = quests.values.map((questJson) {
+            return QuestData.fromJson(questJson as Map<String, dynamic>);
+          }).toList();
+          _playerNotifier.update((player) {
+            return player.copyWith(loadedQuestData: questList);
+          });
+          // log("quests: ${prettyJson(questList)}");
+          break;
+
+        // {"t":"xt","b":{"r":-1,"o":{"cmd":"acceptQuest","bSuccess":1,"QuestID":409,"msg":"success"}}}
+        case 'acceptQuest':
+          _playerNotifier.update((player) {
+            final acceptedQuest = data['QuestID'] as int;
+            if (player.questTracker.contains(acceptedQuest)) {
+              return player;
+            }
+            return player.copyWith(
+              questTracker: [...player.questTracker, acceptedQuest],
+            );
+          });
+          break;
+
+        // {"t":"xt","b":{"r":-1,"o":{"cmd":"turnIn","sItems":"841:1"}}}
+        case 'turnIn':
+          final itemData = data['sItems'] as String;
+          final itemId = itemData.split(':')[0];
+          final itemQty = int.parse(itemData.split(':')[1]);
+          _playerNotifier.decreaseItemQty(int.parse(itemId), itemQty);
+          log('turnIn: $itemData');
+          break;
+
+        // {"t":"xt","b":{"r":-1,"o":{"cmd":"ccqr","rewardObj":{"iCP":0,"intGold":500,"intExp":500,"typ":"q","intCoins":0},"bSuccess":1,"QuestID":181,"sName":"Summoning Complete"}}}
+        case 'ccqr':
+          final questId = data['QuestID'] as int;
+          final questName = data['sName'] as String;
+          final isQuestCompleted = data['bSuccess'] == 1;
+          final msg = data['msg'] as String?;
+          if (isQuestCompleted) {
+            _playerNotifier.update((player) {
+              final newTracker = List<int>.from(player.questTracker);
+              newTracker.remove(questId);
+              return player.copyWith(questTracker: newTracker);
+            });
+            socket.addLog(
+              message: "Completion success: $questId | $questName",
+              packetSender: PacketSender.server,
+            );
+          } else {
+            socket.addLog(
+              message: "Completion failed: $questId | $msg",
+              packetSender: PacketSender.server,
+            );
+          }
           break;
 
         // any items dropped

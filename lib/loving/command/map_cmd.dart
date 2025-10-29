@@ -1,7 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/loving/command/base_cmd.dart';
 
-import '../../common/utils.dart';
 import '../../model/game/area_map.dart';
 import '../../model/game/player.dart';
 import '../../model/packet.dart';
@@ -38,7 +37,9 @@ class MapCmd extends BaseCmd {
           ? "%xt%zm%cmd%1%tfer%${_player.username}%$mapName-$roomNumber%"
           : "%xt%zm%cmd%1%tfer%${_player.username}%$mapName%",
     );
-    await Future.delayed(Duration(seconds: 3));
+    await waitFor(
+      condition: () async => _map.name.toLowerCase() == mapName.toLowerCase(),
+    );
   }
 
   Future<void> joinHouse({required String house}) async {
@@ -47,7 +48,9 @@ class MapCmd extends BaseCmd {
       packetSender: PacketSender.client,
     );
     client.sendPacket("%xt%zm%house%1%$house%");
-    await Future.delayed(Duration(seconds: 3));
+    await waitFor(
+      condition: () async => _map.name.toLowerCase() == 'house',
+    );
   }
 
   Future<void> jumpToCell({required String cell, String pad = "Left"}) async {
@@ -58,7 +61,7 @@ class MapCmd extends BaseCmd {
     );
     client.sendPacket("%xt%zm%moveToCell%${_map.areaId}%$cell%$pad%");
     _playerNotifier.update((player) => player.copyWith(cell: cell, pad: pad));
-    await Future.delayed(defaultDelay);
+    await delay();
   }
 
   Future<void> walkTo({required int x, required int y}) async {
@@ -69,6 +72,6 @@ class MapCmd extends BaseCmd {
     );
     client.sendPacket("%xt%zm%mv%${_map.areaId}%$x%$y%10%");
     _playerNotifier.update((player) => player.copyWith(posX: x, posY: y));
-    await Future.delayed(defaultDelay);
+    await delay();
   }
 }

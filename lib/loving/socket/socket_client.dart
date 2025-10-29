@@ -87,7 +87,7 @@ class SocketClient {
   void sendPacket(String packet) {
     _socket.add(utf8.encode("$packet\u0000"));
     addDebug(message: packet, packetSender: PacketSender.client);
-    log('Sent: $packet');
+    if (!packet.contains('%gar%')) log('Sent: $packet');
   }
 
   Future<void> close() async {
@@ -172,6 +172,7 @@ class SocketClient {
     required PacketSender packetSender,
     bool isDebug = false,
   }) {
+    if (message.contains('Please slow down.') && !isDebug) return;
     _streamPackets.add(
       Packet(
         message: message,
