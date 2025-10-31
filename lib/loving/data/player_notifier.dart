@@ -88,6 +88,7 @@ class PlayerNotifier extends StateNotifier<Player> {
       // just update the item qty
       final curr = current[index];
       current[index] = curr.copyWith(qty: curr.qty + item.qty);
+      // current[index] = curr.copyWith(qty: item.qty);
     } else {
       current.add(item);
     }
@@ -110,6 +111,7 @@ class PlayerNotifier extends StateNotifier<Player> {
       // just update the item qty
       final curr = current[index];
       current[index] = curr.copyWith(qty: curr.qty + item.qty);
+      // current[index] = curr.copyWith(qty: item.qty);
     } else {
       current.add(item);
     }

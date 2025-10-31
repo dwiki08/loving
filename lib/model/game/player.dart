@@ -87,12 +87,25 @@ class Player {
   Item? getInventoryItem(int itemId) =>
       inventoryItems.where((item) => item.id == itemId).firstOrNull;
 
+  Item? getInventoryItemByName(String itemName) =>
+      inventoryItems.where((item) => item.name == itemName).firstOrNull;
+
   Item? getTempInventoryItem(int itemId) =>
       tempInventoryItems.where((item) => item.id == itemId).firstOrNull;
 
-  bool hasItem(int itemId, {int qty = 1}) {
+  Item? getTempInventoryItemByName(String itemName) =>
+      tempInventoryItems.where((item) => item.name == itemName).firstOrNull;
+
+  bool hasItem(int itemId, [int qty = 1]) {
     final invItem = getInventoryItem(itemId);
     final tempInvItem = getTempInventoryItem(itemId);
+    final totalQty = (invItem?.qty ?? 0) + (tempInvItem?.qty ?? 0);
+    return totalQty >= qty;
+  }
+
+  bool hasItemByName(String itemName, [int qty = 1]) {
+    final invItem = getInventoryItemByName(itemName);
+    final tempInvItem = getTempInventoryItemByName(itemName);
     final totalQty = (invItem?.qty ?? 0) + (tempInvItem?.qty ?? 0);
     return totalQty >= qty;
   }

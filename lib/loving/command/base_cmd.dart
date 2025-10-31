@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/loving/socket/socket_client.dart';
 
+import '../../model/game/area_map.dart';
+import '../../model/game/player.dart';
+import '../data/map_area_notifier.dart';
+import '../data/player_notifier.dart';
+
 abstract class BaseCmd {
   final Ref _ref;
   final SocketClient _client;
@@ -18,6 +23,12 @@ abstract class BaseCmd {
 
   @protected
   SocketClient get client => _client;
+
+  @protected
+  AreaMap get areaMap => ref.read(areaMapProvider);
+
+  @protected
+  Player get player => ref.read(playerProvider);
 
   Future<void> delay({int milliseconds = defaultDelayInt}) async {
     await Future.delayed(Duration(milliseconds: milliseconds));
@@ -55,5 +66,16 @@ abstract class BaseCmd {
     final result = await completer.future;
     timer.cancel();
     return result;
+  }
+
+  @protected
+  Future<void> leaveCombat() async {
+    client.sendPacket(
+      "%xt%zm%moveToCell%${areaMap.areaId}%${player.cell}%${player.pad}%",
+    );
+    await waitFor(
+      condition: () async => player.status != PlayerStatus.inCombat,
+    );
+    await delay(milliseconds: 500);
   }
 }

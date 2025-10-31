@@ -14,7 +14,7 @@ class LoginScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final usernameTextController = useTextEditingController(text: '');
     final passwordTextController = useTextEditingController(text: '');
-    final selectedServer = useState(ServerList.yorumi);
+    final selectedServer = useState(ServerList.alteon);
     final isPasswordVisible = useState(false);
 
     useLoginListener(

@@ -1,10 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:loving/loving/data/map_area_notifier.dart';
-import 'package:loving/loving/data/player_notifier.dart';
 import 'package:loving/loving/socket/socket_client.dart';
-import 'package:loving/model/game/area_map.dart';
 
-import '../../model/game/player.dart';
 import '../../model/game/skill.dart';
 import 'base_cmd.dart';
 
@@ -15,10 +11,6 @@ final combatCmdProvider = Provider<CombatCmd>((ref) {
 
 class CombatCmd extends BaseCmd {
   CombatCmd(super.ref, super.client);
-
-  Player get _player => ref.read(playerProvider);
-
-  AreaMap get _areaMap => ref.read(areaMapProvider);
 
   int _reloadTimeMs = 0;
 
@@ -35,8 +27,8 @@ class CombatCmd extends BaseCmd {
 
   List<int> _prioritizedMonsterIds(List<String> targetPriority) {
     // Get monsters in current cell
-    final currentCell = _player.cell;
-    final monsters = _areaMap
+    final currentCell = player.cell;
+    final monsters = areaMap
         .getMonsters(currentCell)
         .where((monster) => monster.isAlive)
         .toList();
@@ -68,9 +60,9 @@ class CombatCmd extends BaseCmd {
   }
 
   List<int> _currentCellPlayerIds() {
-    final currentCell = _player.cell;
-    final myId = _player.userId;
-    final players = _areaMap.areaPlayers
+    final currentCell = player.cell;
+    final myId = player.userId;
+    final players = areaMap.areaPlayers
         .where((element) => element.cell == currentCell)
         .toList();
     final playerIds = players
@@ -97,9 +89,9 @@ class CombatCmd extends BaseCmd {
       return;
     }
 
-    final skill = _player.skills[index];
+    final skill = player.skills[index];
     if (skill.remainingCooldown > 0 ||
-        skill.mana * _player.skillCdr > _player.currentMP) {
+        skill.mana * player.skillCdr > player.currentMP) {
       return;
     }
 
@@ -120,7 +112,7 @@ class CombatCmd extends BaseCmd {
         ids = _currentCellPlayerIds();
         break;
       case TargetType.self:
-        ids = [_player.userId];
+        ids = [player.userId];
         break;
     }
 

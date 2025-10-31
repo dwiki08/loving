@@ -29,11 +29,11 @@ class Monster {
 
   factory Monster.fromJson(Map<String, dynamic> json) {
     return Monster(
-      monMapId: json['MonMapID'] as int,
+      monMapId: safeParseInt(json['MonMapID']),
       monId: json['MonID'] as String,
-      isAlive: (json['intHP'] as int) > 0,
-      currentHp: json['intHP'] as int,
-      maxHp: json['intHPMax'] as int,
+      isAlive: safeParseInt(json['intHP']) > 0,
+      currentHp: safeParseInt(json['intHP']),
+      maxHp: safeParseInt(json['intHPMax']),
       monName: null,
       cell: null,
       auras: [],

@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:collection/collection.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:loving/common/utils.dart';
 import 'package:loving/loving/data/map_area_notifier.dart';
 import 'package:loving/model/game/area_player.dart';
 
@@ -33,14 +32,13 @@ class JsonPacketHandler {
     final areaMap = _ref.read(areaMapProvider);
     final player = _ref.read(playerProvider);
 
+    final jsonMsg = json.decode(msg) as Map<String, dynamic>;
+    final data = jsonMsg["b"]?["o"];
+    if (data == null) return;
+    final cmd = data["cmd"];
+    // log('JsonPacketHandler cmd: $cmd');
+
     try {
-      final jsonMsg = json.decode(msg) as Map<String, dynamic>;
-      final data = jsonMsg["b"]?["o"];
-      if (data == null) return;
-      final cmd = data["cmd"];
-
-      // log('JsonPacketHandler cmd: $cmd');
-
       switch (cmd) {
         // on moved to new area map
         case 'moveToArea':
@@ -280,13 +278,14 @@ class JsonPacketHandler {
           });
           break;
 
-        // {"t":"xt","b":{"r":-1,"o":{"cmd":"turnIn","sItems":"841:1"}}}
+        // {"t":"xt","b":{"r":-1,"o":{"cmd":"turnIn","sItems":"38236:5,38238:5,38239:3,42574:3,42575:2"}}}
         case 'turnIn':
           final itemData = data['sItems'] as String;
-          final itemId = itemData.split(':')[0];
-          final itemQty = int.parse(itemData.split(':')[1]);
-          _playerNotifier.decreaseItemQty(int.parse(itemId), itemQty);
-          log('turnIn: $itemData');
+          itemData.split(',').forEach((item) {
+            final itemId = item.split(':')[0];
+            final itemQty = int.parse(item.split(':')[1]);
+            _playerNotifier.decreaseItemQty(int.parse(itemId), itemQty);
+          });
           break;
 
         // {"t":"xt","b":{"r":-1,"o":{"cmd":"ccqr","rewardObj":{"iCP":0,"intGold":500,"intExp":500,"typ":"q","intCoins":0},"bSuccess":1,"QuestID":181,"sName":"Summoning Complete"}}}
@@ -347,22 +346,36 @@ class JsonPacketHandler {
             if (isInBank) {
               final item = player.getBankItem(int.parse(key));
               if (item != null) {
-                log("update bank item: ${prettyJson(value)}");
+                log(
+                  "update bank item: ${item.name} | qtyNow:${value["iQtyNow"]}",
+                );
                 _playerNotifier.addBankItem(
                   item.copyWith(qty: value["iQtyNow"]),
                 );
               }
             } else {
               final item = player.getInventoryItem(int.parse(key));
+              final tempItem = player.getTempInventoryItem(int.parse(key));
               if (item != null) {
                 _playerNotifier.addInventoryItem(
-                  item.copyWith(qty: value["iQtyNow"]),
+                  item.copyWith(
+                    qty: value["iQtyNow"],
+                  ), // TODO update qtyNow, not add
+                );
+              } else if (tempItem != null) {
+                _playerNotifier.addTempInventoryItem(
+                  tempItem.copyWith(qty: value["iQty"]),
                 );
               } else {
-                log("new item: ${prettyJson(value)}");
-                _playerNotifier.addInventoryItem(
-                  Item.fromJson(value as Map<String, dynamic>),
-                );
+                var newItem = Item.fromJson(value as Map<String, dynamic>);
+                if (newItem.qty < 1) {
+                  newItem = newItem.copyWith(qty: 1);
+                }
+                if (newItem.isTemp) {
+                  _playerNotifier.addTempInventoryItem(newItem);
+                } else {
+                  _playerNotifier.addInventoryItem(newItem);
+                }
               }
             }
           });
@@ -428,8 +441,10 @@ class JsonPacketHandler {
           );
           break;
       }
-    } catch (e) {
+    } catch (e, s) {
       log('JsonPacketHandler err: $e');
+      log('JsonPacketHandler trace: $s');
+      log('JsonPacketHandler data: $data');
       socket.addDebug(
         message: 'JsonPacketHandler err: $e',
         packetSender: PacketSender.server,

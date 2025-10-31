@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/model/game/area_map.dart';
 
@@ -21,7 +23,7 @@ class QuestCmd extends BaseCmd {
 
   // %xt%zm%getQuests%103078%407%408%409%445%446%
   Future<void> getQuest(List<int> questIds) async {
-    // log('getQuests: $questIds');
+    log('getQuests: $questIds');
     client.sendPacket(
       '%xt%zm%getQuests%${_areaMap.areaId}%${questIds.join('%')}%',
     );

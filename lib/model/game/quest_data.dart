@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:loving/common/utils.dart';
 
 import 'item.dart';
 
@@ -55,7 +56,8 @@ class QuestData {
   }
 
   factory QuestData.fromJson(Map<String, dynamic> json) => QuestData(
-    rewards: Rewards.fromJson(json["oRewards"]),
+    // rewards: Rewards.fromJson(json["oRewards"]),
+    rewards: Rewards(itemsS: {}),
     value: json["iValue"],
     reqItems: Map.from(
       json["oItems"],
@@ -63,12 +65,12 @@ class QuestData {
     reqTurnInItems: List<TurnInItem>.from(
       json["turnin"].map((x) => TurnInItem.fromJson(x)),
     ),
-    slot: json["iSlot"],
-    level: json["iLvl"],
-    reqRep: json["iReqRep"],
+    slot: safeParseInt(json["iSlot"]),
+    level: safeParseInt(json["iLvl"]),
+    reqRep: safeParseInt(json["iReqRep"]),
     description: json["sDesc"],
-    questId: json["QuestID"],
-    upgrade: json["bUpg"] == 1,
+    questId: safeParseInt(json["QuestID"]),
+    upgrade: safeParseInt(json["bUpg"]) == 1,
     name: json["sName"],
   );
 
@@ -141,9 +143,9 @@ class TurnInItem {
   });
 
   factory TurnInItem.fromJson(Map<String, dynamic> json) => TurnInItem(
-    itemId: json["ItemID"],
-    questId: json["QuestID"],
-    quantity: json["iQty"],
+    itemId: safeParseInt(json["ItemID"]),
+    questId: safeParseInt(json["QuestID"]),
+    quantity: safeParseInt(json["iQty"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -187,11 +189,11 @@ class RewardItem {
   });
 
   factory RewardItem.fromJson(Map<String, dynamic> json) => RewardItem(
-    rate: json["iRate"],
-    itemId: json["ItemID"],
-    questId: json["QuestID"],
-    type: json["iType"],
-    quantity: json["iQty"],
+    rate: safeParseInt(json["iRate"]),
+    itemId: safeParseInt(json["ItemID"]),
+    questId: safeParseInt(json["QuestID"]),
+    type: safeParseInt(json["iType"]),
+    quantity: safeParseInt(json["iQty"]),
   );
 
   Map<String, dynamic> toJson() => {

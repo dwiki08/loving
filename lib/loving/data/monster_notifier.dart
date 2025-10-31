@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/legacy.dart';
 import 'package:loving/model/game/monster.dart';
 
+// unused for now
 final monstersProvider = StateNotifierProvider<MonsterNotifier, List<Monster>>((
   ref,
 ) {

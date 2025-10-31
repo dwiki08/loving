@@ -67,10 +67,10 @@ class Item {
 
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
-      id: json['ItemID'],
-      name: json['sName'],
+      id: safeParseInt(json['ItemID']),
+      name: json['sName'] ?? '',
       type: ItemType.fromString(json['sES']),
-      qty: json['iQty'],
+      qty: safeParseInt(json['iQty']),
       isAcs: json['bCoins'] == 1,
       isTemp: json['bTemp'] == 1,
       cost: json['iCost'],

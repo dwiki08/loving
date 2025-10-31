@@ -10,6 +10,7 @@ import 'package:loving/preset/void_aura.dart';
 
 import '../../../loving/socket/socket_client.dart';
 import '../../../preset/afk_idhq.dart';
+import '../../../preset/nulgath_bday_pet_farm.dart';
 import 'dashboard_state.dart';
 
 final dashboardNotifierProvider =
@@ -22,6 +23,7 @@ class DashboardNotifier extends Notifier<DashboardState> {
   DashboardState build() {
     return DashboardState(
       presets: [
+        ref.read(nulgathBdayFarmProvider),
         ref.read(battleUnderBProvider),
         ref.read(afkIdhqProvider),
         ref.read(voidAuraProvider),
