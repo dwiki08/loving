@@ -28,6 +28,13 @@ jobs:
         with:
           flutter-version: "3.32.8"
 
+      - name: Create .env file
+        run: |
+          cat > .env <<'EOF'
+          USERNAME=u
+          PASS=p
+          EOF
+
       # 4. Get dependencies
       - name: Install dependencies
         run: flutter pub get
