@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/model/server_list.dart';
@@ -12,8 +13,10 @@ class LoginScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final usernameTextController = useTextEditingController(text: '');
-    final passwordTextController = useTextEditingController(text: '');
+    final usernameTextController = useTextEditingController(
+        text: dotenv.env['USERNAME']);
+    final passwordTextController = useTextEditingController(
+        text: dotenv.env['PASS']);
     final selectedServer = useState(ServerList.alteon);
     final isPasswordVisible = useState(false);
 
