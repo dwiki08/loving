@@ -73,7 +73,8 @@ class NulgathBirthdayPetFarm extends BasePreset {
       await questCmd.tryCompleteQuest(questId: 6697);
       await generalCmd.delay(milliseconds: 3000);
 
-      completionCount += 1;
+      completionCount += multi;
+      await updateNotificationStatus('Completed: $completionCount times');
     }
 
     stop();

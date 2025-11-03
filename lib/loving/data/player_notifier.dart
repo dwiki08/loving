@@ -81,14 +81,17 @@ class PlayerNotifier extends StateNotifier<Player> {
     state = state.copyWith(tempInventoryItems: tempCurrent);
   }
 
-  void addInventoryItem(Item item) {
+  void addInventoryItem(Item item, [bool isQtyNow = false]) {
     final current = [...state.inventoryItems];
     final index = current.indexWhere((i) => i.id == item.id);
     if (index != -1) {
       // just update the item qty
       final curr = current[index];
-      current[index] = curr.copyWith(qty: curr.qty + item.qty);
-      // current[index] = curr.copyWith(qty: item.qty);
+      if (isQtyNow) {
+        current[index] = curr.copyWith(qty: item.qty);
+      } else {
+        current[index] = curr.copyWith(qty: curr.qty + item.qty);
+      }
     } else {
       current.add(item);
     }
@@ -111,7 +114,6 @@ class PlayerNotifier extends StateNotifier<Player> {
       // just update the item qty
       final curr = current[index];
       current[index] = curr.copyWith(qty: curr.qty + item.qty);
-      // current[index] = curr.copyWith(qty: item.qty);
     } else {
       current.add(item);
     }
@@ -127,13 +129,17 @@ class PlayerNotifier extends StateNotifier<Player> {
     state = state.copyWith(tempInventoryItems: current);
   }
 
-  void addBankItem(Item item) {
+  void addBankItem(Item item, [bool isQtyNow = false]) {
     final current = [...state.bankItems];
     final index = current.indexWhere((i) => i.id == item.id);
     if (index != -1) {
       // just update the item qty
       final curr = current[index];
-      current[index] = curr.copyWith(qty: curr.qty + item.qty);
+      if (isQtyNow) {
+        current[index] = curr.copyWith(qty: item.qty);
+      } else {
+        current[index] = curr.copyWith(qty: curr.qty + item.qty);
+      }
     } else {
       current.add(item);
     }

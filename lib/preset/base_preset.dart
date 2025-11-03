@@ -7,6 +7,8 @@ import 'package:loving/loving/command/quest_cmd.dart';
 import '../loving/command/general_cmd.dart';
 import '../loving/command/map_cmd.dart';
 import '../loving/data/player_notifier.dart';
+import '../loving/socket/socket_client.dart';
+import '../services/notification_service.dart';
 
 abstract class BasePreset {
   final Ref ref;
@@ -17,7 +19,13 @@ abstract class BasePreset {
 
   bool _isRunning = false;
 
+  static const int _notificationId = 1001;
+
+  final NotificationService _notificationService = NotificationService();
+
   BasePreset({required this.ref});
+
+  SocketClient get socket => ref.read(socketProvider);
 
   GeneralCmd get generalCmd => ref.read(generalCmdProvider);
 
@@ -32,12 +40,50 @@ abstract class BasePreset {
   Future<void> start() async {
     _isRunning = true;
     generalCmd.addLog('Starting \'$name\' preset...');
+
+    // Create local notification if bot is running in background
+    await _notificationService.initialize();
+    await _notificationService.requestPermissions();
+
+    await _notificationService.showNotification(
+      id: _notificationId,
+      title: name,
+      body: 'Bot is currently running...',
+      payload: '',
+    );
   }
 
+  // TODO : stop bot when socket is disconnected
   Future<void> stop() async {
     _isRunning = false;
     await generalCmd.leaveCombat();
     generalCmd.addLog('\'$name\' is stopped.');
+
+    // Cancel the running notification
+    await _notificationService.cancelNotification(_notificationId);
+  }
+
+  Future<void> updateNotificationStatus(
+    String body, [
+    String payload = '',
+  ]) async {
+    if (_isRunning) {
+      await _notificationService.updateNotification(
+        id: _notificationId,
+        title: name,
+        body: body,
+        payload: payload,
+      );
+    }
+  }
+
+  Future<void> showNotificationError(String error) async {
+    await _notificationService.showErrorNotification(
+      id: _notificationId + 1,
+      title: 'Bot Error',
+      body: '$name preset error: $error',
+      payload: name,
+    );
   }
 
   Future<void> killForItem(

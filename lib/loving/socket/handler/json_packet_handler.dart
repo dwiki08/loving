@@ -360,8 +360,9 @@ class JsonPacketHandler {
                 _playerNotifier.addInventoryItem(
                   item.copyWith(
                     qty: value["iQtyNow"],
-                  ), // TODO update qtyNow, not add
+                  ),
                 );
+
               } else if (tempItem != null) {
                 _playerNotifier.addTempInventoryItem(
                   tempItem.copyWith(qty: value["iQty"]),
@@ -389,6 +390,7 @@ class JsonPacketHandler {
           for (final i in data['a'] as List) {
             final itemData = i['data'] as Map<String, dynamic>;
             final username = itemData['strUsername'] as String;
+            // TODO : handle auto logout when encounter any staff account (accessLevel > 30)
             final accessLevel = itemData['intAccessLevel'] as String;
             final charId = itemData['CharID'] as String;
             final totalGold = itemData['intGold'];

@@ -31,8 +31,8 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env <<'EOF'
-          USERNAME=u
-          PASS=p
+          USERNAME=
+          PASS=
           EOF
 
       # 4. Get dependencies
