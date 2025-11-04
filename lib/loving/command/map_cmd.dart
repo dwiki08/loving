@@ -24,6 +24,7 @@ class MapCmd extends BaseCmd {
     int? roomNumber,
     bool leaveCombatFirst = true,
   }) async {
+    if (!await isPlayerReady()) return;
     if (areaMap.name.toLowerCase() == mapName.toLowerCase()) return;
     if (leaveCombatFirst) await leaveCombat();
 
@@ -38,12 +39,15 @@ class MapCmd extends BaseCmd {
     );
     await waitFor(
       condition: () async =>
-      areaMap.name.toLowerCase() == mapName.toLowerCase(),
+          areaMap.name.toLowerCase() == mapName.toLowerCase(),
     );
   }
 
-  Future<void> joinHouse(
-      {required String house, bool leaveCombatFirst = true}) async {
+  Future<void> joinHouse({
+    required String house,
+    bool leaveCombatFirst = true,
+  }) async {
+    if (!await isPlayerReady()) return;
     if (leaveCombatFirst) await leaveCombat();
     client.addLog(
       message: "Joining house: $house",
@@ -54,6 +58,7 @@ class MapCmd extends BaseCmd {
   }
 
   Future<void> jumpToCell({required String cell, String pad = "Left"}) async {
+    if (!await isPlayerReady()) return;
     if (player.cell.toLowerCase() == cell.toLowerCase()) return;
     client.addLog(
       message: "Moving to cell: $cell pad: $pad",
@@ -65,6 +70,7 @@ class MapCmd extends BaseCmd {
   }
 
   Future<void> walkTo({required int x, required int y}) async {
+    if (!await isPlayerReady()) return;
     if (player.posX == x && player.posY == y) return;
     client.addLog(
       message: "Walking to: $x, $y",

@@ -5,6 +5,7 @@ import 'package:loving/model/packet.dart';
 import 'package:loving/preset/base_preset.dart';
 
 import '../../../component/log_list.dart';
+import 'log_body_state.dart';
 
 class LogBody extends HookConsumerWidget {
   const LogBody({
@@ -27,7 +28,7 @@ class LogBody extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
-    final hideOptions = useState(true);
+    final logBodyState = ref.watch(logBodyProvider);
 
     Widget cmdDropDown() {
       return Expanded(
@@ -81,7 +82,7 @@ class LogBody extends HookConsumerWidget {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
-                    hideOptions.value = !hideOptions.value;
+                    ref.read(logBodyProvider.notifier).toggleHideOptions();
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -91,7 +92,7 @@ class LogBody extends HookConsumerWidget {
                   ),
                   child: SizedBox(
                     height: 46,
-                    child: hideOptions.value
+                    child: logBodyState.hideOptions
                         ? const Icon(Icons.open_in_full)
                         : const Icon(Icons.close_fullscreen),
                   ),
@@ -110,7 +111,9 @@ class LogBody extends HookConsumerWidget {
                       ? null
                       : () {
                           if (isRunning) {
-                            hideOptions.value = false;
+                            ref
+                                .read(logBodyProvider.notifier)
+                                .setHideOptions(false);
                           }
                           onToggleStart();
                         },
@@ -168,7 +171,8 @@ class LogBody extends HookConsumerWidget {
             curve: Curves.easeInOut,
             child: Visibility(
               visible:
-                  (!isRunning || !hideOptions.value) && selectedPreset != null,
+                  (!isRunning || !logBodyState.hideOptions) &&
+                  selectedPreset != null,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 margin: const EdgeInsets.symmetric(horizontal: 12),

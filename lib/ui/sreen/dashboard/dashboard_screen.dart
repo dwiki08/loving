@@ -3,21 +3,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:loving/model/game/chat.dart';
-import 'package:loving/model/packet.dart';
 import 'package:loving/ui/component/logout_button.dart';
 import 'package:loving/ui/sreen/dashboard/component/chat_body.dart';
 import 'package:loving/ui/sreen/dashboard/component/log_body.dart';
 
 import '../../../common/utils.dart';
 import '../../../di/di_provider.dart';
+import '../../../model/game/chat.dart';
 import '../../../model/login_model.dart';
+import '../../../model/packet.dart';
 import '../../../model/socket_state.dart';
+import '../../../services/bot_manager.dart';
 import '../../component/socket_status_icon.dart';
 import '../../theme.dart';
 import '../login/login_screen.dart';
 import 'component/debug_body.dart';
 import 'dashboard_notifier.dart';
+import 'dashboard_state_provider.dart';
 
 class DashboardScreen extends HookConsumerWidget {
   const DashboardScreen({
@@ -31,15 +33,8 @@ class DashboardScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final logs = useState<List<Packet>>([]);
-    final debugs = useState<List<Packet>>([]);
-    final chats = useState<List<Chat>>([]);
-
-    final socketState = useState(SocketState.disconnected);
-    final timer = useState<Timer?>(null);
-    final duration = useState(Duration.zero);
-
     final tabController = useTabController(initialLength: 3);
+    final dashboardScreenState = ref.watch(dashboardScreenProvider);
 
     // Initialize connection
     useEffect(() {
@@ -57,16 +52,11 @@ class DashboardScreen extends HookConsumerWidget {
       next,
     ) {
       next.whenData((state) {
-        socketState.value = state;
+        ref.read(dashboardScreenProvider.notifier).updateSocketState(state);
         if (state == SocketState.connected) {
-          // Start new timer and duration counting
-          timer.value?.cancel();
-          duration.value = Duration.zero;
-          timer.value = Timer.periodic(const Duration(seconds: 1), (_) {
-            duration.value = Duration(seconds: duration.value.inSeconds + 1);
-          });
+          ref.read(dashboardScreenProvider.notifier).startTimer();
         } else {
-          timer.value?.cancel();
+          ref.read(dashboardScreenProvider.notifier).stopTimer();
         }
       });
     });
@@ -74,7 +64,7 @@ class DashboardScreen extends HookConsumerWidget {
     // Chat stream listener
     ref.listen<AsyncValue<Chat>>(socketChatProvider, (prev, next) {
       next.whenData((chat) {
-        chats.value = [...chats.value, chat];
+        ref.read(dashboardScreenProvider.notifier).addChat(chat);
       });
     });
 
@@ -85,20 +75,13 @@ class DashboardScreen extends HookConsumerWidget {
 
         if ((packet.isDebug && packet.packetSender == PacketSender.client) ||
             showDebug) {
-          debugs.value = [...debugs.value, packet];
+          ref.read(dashboardScreenProvider.notifier).addDebug(packet);
         }
         if (packet.isLog) {
-          logs.value = [...logs.value, packet];
+          ref.read(dashboardScreenProvider.notifier).addLog(packet);
         }
       });
     });
-
-    // Timer cleanup on dispose
-    useEffect(() {
-      return () {
-        timer.value?.cancel();
-      };
-    }, []);
 
     final notifier = ref.read(dashboardNotifierProvider.notifier);
     final username = ref.watch(dashboardNotifierProvider).player?.username;
@@ -124,10 +107,10 @@ class DashboardScreen extends HookConsumerWidget {
             Text('Loving ${username != null ? ': $username' : ''}'),
             Row(
               children: [
-                SocketStatusIcon(state: socketState.value),
+                SocketStatusIcon(state: dashboardScreenState.socketState),
                 const SizedBox(width: 8),
                 Text(
-                  formatDuration(duration.value),
+                  formatDuration(dashboardScreenState.duration),
                   style: const TextStyle(fontSize: 14),
                 ),
               ],
@@ -162,15 +145,15 @@ class DashboardScreen extends HookConsumerWidget {
         controller: tabController,
         children: [
           LogBody(
-            packets: logs.value,
-            presets: ref.watch(dashboardNotifierProvider).presets,
-            isRunning: ref.watch(dashboardNotifierProvider).isRunning,
+            packets: dashboardScreenState.logs,
+            presets: ref.watch(botManagerProvider).presets,
+            isRunning: ref.watch(botManagerProvider).isRunning,
             selectedPreset: ref.watch(dashboardNotifierProvider).selectedPreset,
             onSelectPreset: (preset) {
               notifier.selectPreset(preset);
             },
             onToggleStart: () {
-              if (ref.read(dashboardNotifierProvider).isRunning) {
+              if (ref.read(botManagerProvider).isRunning) {
                 notifier.stop();
               } else {
                 notifier.start();
@@ -178,13 +161,13 @@ class DashboardScreen extends HookConsumerWidget {
             },
           ),
           ChatBody(
-            chats: chats.value,
+            chats: dashboardScreenState.chats,
             onSendChat: (text) {
               notifier.sendChat(text);
             },
           ),
           DebugBody(
-            packets: debugs.value,
+            packets: dashboardScreenState.debugs,
             player: ref.watch(dashboardNotifierProvider).player,
             map: ref.watch(dashboardNotifierProvider).map,
             showDebug: ref.watch(dashboardNotifierProvider).showDebug,

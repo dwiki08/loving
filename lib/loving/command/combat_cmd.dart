@@ -85,6 +85,7 @@ class CombatCmd extends BaseCmd {
     List<String> targetPriority = const [],
     int reloadDelay = 700,
   }) async {
+    if (!await isPlayerReady()) return;
     if (index < 0 || index > 5) {
       return;
     }

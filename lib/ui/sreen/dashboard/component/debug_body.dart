@@ -9,6 +9,7 @@ import '../../../../loving/data/map_area_notifier.dart';
 import '../../../../model/game/area_map.dart';
 import '../../../../model/game/player.dart';
 import '../../../component/log_list.dart';
+import 'debug_body_state.dart';
 
 class DebugBody extends HookConsumerWidget {
   final Player? player;
@@ -29,8 +30,7 @@ class DebugBody extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
-    final showPlayer = useState(false);
-    final showMap = useState(false);
+    final debugBodyState = ref.watch(debugBodyProvider);
 
     Widget debugCard(Object jsonObj) {
       final screenHeight = MediaQuery.of(context).size.height;
@@ -60,7 +60,7 @@ class DebugBody extends HookConsumerWidget {
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             child: Visibility(
-              visible: showPlayer.value,
+              visible: debugBodyState.showPlayer,
               child: debugCard(player.toJson()),
             ),
           ),
@@ -68,7 +68,7 @@ class DebugBody extends HookConsumerWidget {
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             child: Visibility(
-              visible: showMap.value,
+              visible: debugBodyState.showMap,
               child: debugCard(map.toJson()),
             ),
           ),
@@ -98,8 +98,11 @@ class DebugBody extends HookConsumerWidget {
                 const Expanded(child: SizedBox()),
                 TextButton(
                   onPressed: () {
-                    showPlayer.value = !showPlayer.value;
-                    showMap.value = false;
+                    ref.read(debugBodyProvider.notifier).toggleShowPlayer();
+                    // Reset map visibility
+                    if (debugBodyState.showMap) {
+                      ref.read(debugBodyProvider.notifier).toggleShowMap();
+                    }
                   },
                   child: const Text(
                     "Player",
@@ -112,8 +115,11 @@ class DebugBody extends HookConsumerWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    showMap.value = !showMap.value;
-                    showPlayer.value = false;
+                    ref.read(debugBodyProvider.notifier).toggleShowMap();
+                    // Reset player visibility
+                    if (debugBodyState.showPlayer) {
+                      ref.read(debugBodyProvider.notifier).toggleShowPlayer();
+                    }
                   },
                   child: const Text(
                     "Map",

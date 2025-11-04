@@ -66,7 +66,6 @@ final questCompletionHandlerProvider = Provider.family<void, List<int>>((
 
     // request accept quest if not in tracker
     for (final questId in questList) {
-      // ref.read(questCmdProvider).acceptQuest(questId);
       if (!newQuestTracker.contains(questId)) {
         ref.read(questCmdProvider).acceptQuest(questId);
       }

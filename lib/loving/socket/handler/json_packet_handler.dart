@@ -358,11 +358,8 @@ class JsonPacketHandler {
               final tempItem = player.getTempInventoryItem(int.parse(key));
               if (item != null) {
                 _playerNotifier.addInventoryItem(
-                  item.copyWith(
-                    qty: value["iQtyNow"],
-                  ),
+                  item.copyWith(qty: value["iQtyNow"]),
                 );
-
               } else if (tempItem != null) {
                 _playerNotifier.addTempInventoryItem(
                   tempItem.copyWith(qty: value["iQty"]),

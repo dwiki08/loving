@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/loving/command/combat_cmd.dart';
@@ -8,6 +10,7 @@ import '../loving/command/general_cmd.dart';
 import '../loving/command/map_cmd.dart';
 import '../loving/data/player_notifier.dart';
 import '../loving/socket/socket_client.dart';
+import '../model/socket_state.dart';
 import '../services/notification_service.dart';
 
 abstract class BasePreset {
@@ -22,6 +25,8 @@ abstract class BasePreset {
   static const int _notificationId = 1001;
 
   final NotificationService _notificationService = NotificationService();
+
+  StreamSubscription<SocketState>? _socketStateSubscription;
 
   BasePreset({required this.ref});
 
@@ -53,9 +58,13 @@ abstract class BasePreset {
     );
   }
 
-  // TODO : stop bot when socket is disconnected
   Future<void> stop() async {
     _isRunning = false;
+
+    // Cancel socket state subscription to prevent memory leaks
+    await _socketStateSubscription?.cancel();
+    _socketStateSubscription = null;
+
     await generalCmd.leaveCombat();
     generalCmd.addLog('\'$name\' is stopped.');
 

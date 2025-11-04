@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'bot_manager.dart';
+
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
 
@@ -32,8 +34,11 @@ class NotificationService {
     _isInitialized = true;
   }
 
-  void _onNotificationTapped(NotificationResponse response) {
-    // Handle notification tap if needed
+  void _onNotificationTapped(NotificationResponse response) async {
+    if (response.actionId == 'stop_bot') {
+      // Stop the currently running bot
+      await BotManager().stopBot();
+    }
   }
 
   Future<void> showNotification({
@@ -62,7 +67,6 @@ class NotificationService {
           largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
           styleInformation: BigTextStyleInformation(''),
           actions: [
-            // TODO : handle Stop Bot from notification action
             AndroidNotificationAction(
               'stop_bot',
               'Stop Bot',

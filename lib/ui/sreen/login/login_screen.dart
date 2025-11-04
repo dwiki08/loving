@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/model/server_list.dart';
 import 'package:loving/ui/theme.dart';
 
+import 'login_form_state.dart';
 import 'login_notifier.dart';
 import 'use_login_listener.dart';
 
@@ -14,15 +15,17 @@ class LoginScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final usernameTextController = useTextEditingController(
-        text: dotenv.env['USERNAME']);
+      text: dotenv.env['USERNAME'],
+    );
     final passwordTextController = useTextEditingController(
-        text: dotenv.env['PASS']);
-    final selectedServer = useState(ServerList.alteon);
-    final isPasswordVisible = useState(false);
+      text: dotenv.env['PASS'],
+    );
+
+    final loginFormState = ref.watch(loginFormProvider);
 
     useLoginListener(
       ref,
-      selectedServer: selectedServer.value,
+      selectedServer: loginFormState.selectedServer,
       context: context,
     );
 
@@ -59,26 +62,28 @@ class LoginScreen extends HookConsumerWidget {
                   enabled: !loginState.isLoading,
                   controller: passwordTextController,
                   textInputAction: TextInputAction.next,
-                  obscureText: !isPasswordVisible.value,
+                  obscureText: !loginFormState.isPasswordVisible,
                   decoration: textFieldDecoration(
                     context: context,
                     icon: const Icon(Icons.password),
                     label: 'Password',
                     suffixIcon: IconButton(
                       icon: Icon(
-                        isPasswordVisible.value
+                        loginFormState.isPasswordVisible
                             ? Icons.visibility
                             : Icons.visibility_off,
                       ),
                       onPressed: () {
-                        isPasswordVisible.value = !isPasswordVisible.value;
+                        ref
+                            .read(loginFormProvider.notifier)
+                            .togglePasswordVisibility();
                       },
                     ),
                   ),
                 ),
                 DropdownButtonFormField<ServerList>(
                   enableFeedback: !loginState.isLoading,
-                  value: selectedServer.value,
+                  value: loginFormState.selectedServer,
                   decoration: textFieldDecoration(
                     context: context,
                     icon: const Icon(Icons.list_alt),
@@ -96,7 +101,9 @@ class LoginScreen extends HookConsumerWidget {
                       ? null
                       : (value) {
                           if (value != null) {
-                            selectedServer.value = value;
+                            ref
+                                .read(loginFormProvider.notifier)
+                                .setSelectedServer(value);
                           }
                         },
                 ),
@@ -111,7 +118,7 @@ class LoginScreen extends HookConsumerWidget {
                                 .login(
                                   username: usernameTextController.text,
                                   password: passwordTextController.text,
-                                  server: selectedServer.value.value,
+                                  server: loginFormState.selectedServer.value,
                                 );
                           },
                           child: const Text('Login'),

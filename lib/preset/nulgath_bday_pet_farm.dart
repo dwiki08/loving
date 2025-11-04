@@ -76,8 +76,6 @@ class NulgathBirthdayPetFarm extends BasePreset {
       completionCount += multi;
       await updateNotificationStatus('Completed: $completionCount times');
     }
-
-    stop();
   }
 
   @override
