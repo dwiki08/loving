@@ -42,7 +42,7 @@ abstract class BaseCmd {
     Duration pollInterval = const Duration(milliseconds: 100),
     String? msgWaitFor,
   }) async {
-    if (msgWaitFor != null) {
+    if (msgWaitFor != null && !await condition()) {
       client.addLog(
         message: 'Waiting for $msgWaitFor',
         packetSender: PacketSender.client,
