@@ -45,7 +45,6 @@ String _$loginNotifierHash() => r'045067ee8ea07fed4f8ba490ab9b339e2af64c03';
 
 abstract class _$LoginNotifier extends $Notifier<AsyncValue<LoginModel?>> {
   AsyncValue<LoginModel?> build();
-
   @$mustCallSuper
   @override
   void runBuild() {

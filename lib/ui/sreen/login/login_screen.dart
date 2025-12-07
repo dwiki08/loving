@@ -8,6 +8,8 @@ import 'package:loving/ui/theme.dart';
 import 'login_form_state.dart';
 import 'login_notifier.dart';
 import 'use_login_listener.dart';
+import '../../../services/account_manager.dart';
+import '../../../database/app_database.dart';
 
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
@@ -22,6 +24,15 @@ class LoginScreen extends HookConsumerWidget {
     );
 
     final loginFormState = ref.watch(loginFormProvider);
+    final isRememberMe = useState(false);
+    final savedAccounts = useState<List<Account>>([]);
+
+    useEffect(() {
+      ref.read(accountManagerProvider).getAccounts().then((accounts) {
+        savedAccounts.value = accounts;
+      });
+      return null;
+    }, []);
 
     useLoginListener(
       ref,
@@ -48,6 +59,33 @@ class LoginScreen extends HookConsumerWidget {
             child: Column(
               spacing: defaultPadding,
               children: [
+                if (savedAccounts.value.isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<Account>(
+                        isExpanded: true,
+                        hint: const Text('Select Saved Account'),
+                        items: savedAccounts.value.map((account) {
+                          return DropdownMenuItem(
+                            value: account,
+                            child: Text(account.username),
+                          );
+                        }).toList(),
+                        onChanged: (account) {
+                          if (account != null) {
+                            usernameTextController.text = account.username;
+                            passwordTextController.text = account.password;
+                          }
+                        },
+                      ),
+                    ),
+                  ),
                 TextField(
                   enabled: !loginState.isLoading,
                   controller: usernameTextController,
@@ -107,12 +145,29 @@ class LoginScreen extends HookConsumerWidget {
                           }
                         },
                 ),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isRememberMe.value,
+                      onChanged: (value) {
+                        isRememberMe.value = value ?? false;
+                      },
+                    ),
+                    const Text('Remember Me'),
+                  ],
+                ),
                 loginState.isLoading
                     ? const CircularProgressIndicator()
                     : SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
+                            if (isRememberMe.value) {
+                              ref.read(accountManagerProvider).saveAccount(
+                                usernameTextController.text,
+                                passwordTextController.text,
+                              );
+                            }
                             ref
                                 .read(loginProvider.notifier)
                                 .login(
