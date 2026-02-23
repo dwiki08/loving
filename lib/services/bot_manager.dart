@@ -10,6 +10,7 @@ import '../model/socket_state.dart';
 import '../preset/afk_idhq.dart';
 import '../preset/base_preset.dart';
 import '../preset/battleunder_b.dart';
+import '../preset/doom_wheel.dart';
 import '../preset/nulgath_bday_pet_farm.dart';
 import '../preset/supplies_the_wheel.dart';
 import '../preset/void_aura.dart';
@@ -42,6 +43,7 @@ class BotManager extends Notifier<BotManagerState> {
   @override
   BotManagerState build() {
     final presets = [
+      ref.read(doomWheelProvider),
       ref.read(nulgathBdayFarmProvider),
       ref.read(battleUnderBProvider),
       ref.read(afkIdhqProvider),
@@ -86,6 +88,7 @@ class BotManager extends Notifier<BotManagerState> {
 
   Future<void> disconnect() async {
     await stopBot();
+    ref.read(socketProvider).sendPacket("%xt%zm%cmd%1%logout%");
     ref.read(playerProvider.notifier).clear();
     ref.read(areaMapProvider.notifier).clear();
     ref.invalidate(socketProvider);

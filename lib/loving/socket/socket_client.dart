@@ -93,8 +93,16 @@ class SocketClient {
   Future<void> close() async {
     _playerNotifier.clear();
     _areaMapNotifier.clear();
-    await _socket.flush();
-    await _socket.close();
+    try {
+      if (!_streamPackets.isClosed) await _streamPackets.close();
+      if (!_streamChats.isClosed) await _streamChats.close();
+      if (!_connectionStateController.isClosed) {
+        await _connectionStateController.close();
+      }
+      _socket.destroy();
+    } catch (e) {
+      log('Error closing socket: $e');
+    }
   }
 
   Future<void> connectToServer({

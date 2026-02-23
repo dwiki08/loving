@@ -29,6 +29,7 @@ PlayerStatus stateToPlayerStatus(int state) {
 class Player {
   final String charId;
   final int userId;
+  final int accessLevel;
   final String username;
   final List<Item> equipments;
   final String cell;
@@ -58,6 +59,7 @@ class Player {
   const Player({
     this.charId = '',
     this.userId = -1,
+    this.accessLevel = 0,
     this.username = '',
     this.equipments = const [],
     this.cell = '',
@@ -113,6 +115,9 @@ class Player {
   Item? getBankItem(int itemId) =>
       bankItems.where((item) => item.id == itemId).firstOrNull;
 
+  Item? getBankItemByName(String itemName) =>
+      bankItems.where((item) => item.name == itemName).firstOrNull;
+
   Item? getDroppedItem(int itemId) =>
       droppedItems.where((item) => item.id == itemId).firstOrNull;
 
@@ -132,6 +137,7 @@ class Player {
   Player copyWith({
     String? charId,
     int? userId,
+    int? accessLevel,
     String? username,
     List<Item>? equipments,
     String? cell,

@@ -82,6 +82,11 @@ class DashboardScreenNotifier extends Notifier<DashboardScreenState> {
   void resetDuration() {
     state = state.copyWith(duration: Duration.zero);
   }
+
+  void clear() {
+    state.timer?.cancel();
+    state = const DashboardScreenState();
+  }
 }
 
 final dashboardScreenProvider =

@@ -393,8 +393,11 @@ class JsonPacketHandler {
             final totalGold = itemData['intGold'];
             if (player.username.toLowerCase() == username.toLowerCase()) {
               _playerNotifier.update(
-                (player) =>
-                    player.copyWith(charId: charId, totalGold: totalGold),
+                (player) => player.copyWith(
+                  charId: charId,
+                  accessLevel: int.parse(accessLevel),
+                  totalGold: totalGold,
+                ),
               );
               myCharId = charId;
             }

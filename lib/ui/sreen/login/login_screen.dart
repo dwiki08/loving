@@ -5,11 +5,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/model/server_list.dart';
 import 'package:loving/ui/theme.dart';
 
+import '../../../database/app_database.dart';
+import '../../../services/account_manager.dart';
 import 'login_form_state.dart';
 import 'login_notifier.dart';
 import 'use_login_listener.dart';
-import '../../../services/account_manager.dart';
-import '../../../database/app_database.dart';
 
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
@@ -163,10 +163,12 @@ class LoginScreen extends HookConsumerWidget {
                         child: ElevatedButton(
                           onPressed: () {
                             if (isRememberMe.value) {
-                              ref.read(accountManagerProvider).saveAccount(
-                                usernameTextController.text,
-                                passwordTextController.text,
-                              );
+                              ref
+                                  .read(accountManagerProvider)
+                                  .saveAccount(
+                                    usernameTextController.text,
+                                    passwordTextController.text,
+                                  );
                             }
                             ref
                                 .read(loginProvider.notifier)

@@ -26,4 +26,24 @@ class PlayerCmd extends BaseCmd {
       await delay();
     }
   }
+
+  Future<void> moveItemToBank(String itemName) async {
+    final item = player.getInventoryItemByName(itemName);
+    if (item != null) {
+      final packet =
+          "%xt%zm%bankFromInv%${areaMap.areaId}%${item.id}%${item.charItemId}%";
+      client.sendPacket(packet);
+      await delay();
+    }
+  }
+
+  Future<void> moveItemToInventory(String itemName) async {
+    final item = player.getBankItemByName(itemName);
+    if (item != null) {
+      final packet =
+          "%xt%zm%bankToInv%${areaMap.areaId}%${item.id}%${item.charItemId}%";
+      client.sendPacket(packet);
+      await delay();
+    }
+  }
 }

@@ -6,6 +6,7 @@ import 'package:loving/preset/base_preset.dart';
 
 import '../../../services/bot_manager.dart';
 import 'dashboard_state.dart';
+import 'dashboard_state_provider.dart';
 
 final dashboardNotifierProvider =
     NotifierProvider<DashboardNotifier, DashboardState>(DashboardNotifier.new);
@@ -38,6 +39,7 @@ class DashboardNotifier extends Notifier<DashboardState> {
 
   Future<void> disconnect() async {
     await ref.read(botManagerProvider.notifier).disconnect();
+    ref.read(dashboardScreenProvider.notifier).clear();
   }
 
   void sendChat(String text) {
