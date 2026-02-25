@@ -13,7 +13,8 @@ class LogoutButton extends StatelessWidget {
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Logout'),
-            content: const Text('Are you sure you want to logout?'),
+            content: const Text(
+                'Are you sure you want to logout?\n(this will kills app)'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),

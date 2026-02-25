@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loving/ui/component/logout_button.dart';
@@ -16,7 +18,6 @@ import '../../../model/socket_state.dart';
 import '../../../services/bot_manager.dart';
 import '../../component/socket_status_icon.dart';
 import '../../theme.dart';
-import '../login/login_screen.dart';
 import 'component/debug_body.dart';
 import 'dashboard_notifier.dart';
 import 'dashboard_state_provider.dart';
@@ -132,11 +133,9 @@ class DashboardScreen extends HookConsumerWidget {
           LogoutButton(
             onConfirm: () async {
               await notifier.disconnect();
-              if (context.mounted) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
-              }
+              // kill app
+              await SystemNavigator.pop();
+              exit(0);
             },
           ),
         ],
