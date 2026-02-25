@@ -102,11 +102,8 @@ class BotManager extends Notifier<BotManagerState> {
 
   /// Stop the currently running bot
   Future<void> stopBot() async {
-    if (state.currentRunningPreset != null &&
-        state.currentRunningPreset!.isRunning) {
-      await state.currentRunningPreset!.stop();
-      state = state.copyWith(currentRunningPreset: null, isRunning: false);
-    }
+    await state.currentRunningPreset!.stop();
+    state = state.copyWith(currentRunningPreset: null, isRunning: false);
   }
 
   /// Send chat message

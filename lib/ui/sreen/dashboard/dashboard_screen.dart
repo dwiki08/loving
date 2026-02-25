@@ -105,7 +105,7 @@ class DashboardScreen extends HookConsumerWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Loving ${username != null ? ': $username' : ''}'),
+            Text('$server ${username != null ? ': $username' : ''}'),
             Row(
               children: [
                 SocketStatusIcon(state: dashboardScreenState.socketState),
