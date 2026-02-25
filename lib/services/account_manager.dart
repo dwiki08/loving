@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
 import '../database/app_database.dart';
 
 class AccountManager {
@@ -8,12 +9,14 @@ class AccountManager {
   AccountManager(this._db);
 
   Future<void> saveAccount(String username, String password) async {
-    await _db.into(_db.accounts).insertOnConflictUpdate(
-      AccountsCompanion(
-        username: Value(username),
-        password: Value(password),
-      ),
-    );
+    await _db
+        .into(_db.accounts)
+        .insertOnConflictUpdate(
+          AccountsCompanion(
+            username: Value(username),
+            password: Value(password),
+          ),
+        );
   }
 
   Future<List<Account>> getAccounts() async {
