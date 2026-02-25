@@ -4,7 +4,7 @@ const double defaultPadding = 16.0;
 
 const defaultCircularRadius = Radius.circular(10);
 
-const primaryColor = Color(0xFFCFA1D2);
+const primaryColor = Color(0xFFE89595);
 const appBarColor = primaryColor;
 const navbarItemColor = Color(0xff42515a);
 const navbarSelectedItemColor = Color(0xFF6394C4);
