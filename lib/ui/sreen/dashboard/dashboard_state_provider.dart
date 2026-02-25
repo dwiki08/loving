@@ -48,16 +48,30 @@ class DashboardScreenNotifier extends Notifier<DashboardScreenState> {
     return const DashboardScreenState();
   }
 
+  static const int _maxPackets = 100;
+
   void addLog(Packet packet) {
-    state = state.copyWith(logs: [...state.logs, packet]);
+    final newList = [...state.logs, packet];
+    if (newList.length > _maxPackets) {
+      newList.removeAt(0);
+    }
+    state = state.copyWith(logs: newList);
   }
 
   void addDebug(Packet packet) {
-    state = state.copyWith(debugs: [...state.debugs, packet]);
+    final newList = [...state.debugs, packet];
+    if (newList.length > _maxPackets) {
+      newList.removeAt(0);
+    }
+    state = state.copyWith(debugs: newList);
   }
 
   void addChat(Chat chat) {
-    state = state.copyWith(chats: [...state.chats, chat]);
+    final newList = [...state.chats, chat];
+    if (newList.length > _maxPackets) {
+      newList.removeAt(0);
+    }
+    state = state.copyWith(chats: newList);
   }
 
   void updateSocketState(SocketState newState) {

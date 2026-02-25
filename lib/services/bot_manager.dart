@@ -102,7 +102,7 @@ class BotManager extends Notifier<BotManagerState> {
 
   /// Stop the currently running bot
   Future<void> stopBot() async {
-    await state.currentRunningPreset!.stop();
+    await state.currentRunningPreset?.stop();
     state = state.copyWith(currentRunningPreset: null, isRunning: false);
   }
 
