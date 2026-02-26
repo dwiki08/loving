@@ -72,7 +72,9 @@ class DashboardScreen extends HookConsumerWidget {
     // Packet stream listener
     ref.listen<AsyncValue<Packet>>(socketPacketProvider, (prev, next) {
       next.whenData((packet) {
-        final showDebug = ref.watch(dashboardNotifierProvider).showDebug;
+        final showDebug = ref.watch(
+          dashboardNotifierProvider.select((s) => s.showDebug),
+        );
 
         if ((packet.isDebug && packet.packetSender == PacketSender.client) ||
             showDebug) {
@@ -85,7 +87,9 @@ class DashboardScreen extends HookConsumerWidget {
     });
 
     final notifier = ref.read(dashboardNotifierProvider.notifier);
-    final username = ref.watch(dashboardNotifierProvider).player?.username;
+    final username = ref.watch(
+      dashboardNotifierProvider.select((s) => s.player?.username),
+    );
 
     useEffect(() {
       tabController.addListener(() {
@@ -145,9 +149,11 @@ class DashboardScreen extends HookConsumerWidget {
         children: [
           LogBody(
             packets: dashboardScreenState.logs,
-            presets: ref.watch(botManagerProvider).presets,
-            isRunning: ref.watch(botManagerProvider).isRunning,
-            selectedPreset: ref.watch(dashboardNotifierProvider).selectedPreset,
+            presets: ref.watch(botManagerProvider.select((s) => s.presets)),
+            isRunning: ref.watch(botManagerProvider.select((s) => s.isRunning)),
+            selectedPreset: ref.watch(
+              dashboardNotifierProvider.select((s) => s.selectedPreset),
+            ),
             onSelectPreset: (preset) {
               notifier.selectPreset(preset);
             },
@@ -167,9 +173,13 @@ class DashboardScreen extends HookConsumerWidget {
           ),
           DebugBody(
             packets: dashboardScreenState.debugs,
-            player: ref.watch(dashboardNotifierProvider).player,
-            map: ref.watch(dashboardNotifierProvider).map,
-            showDebug: ref.watch(dashboardNotifierProvider).showDebug,
+            player: ref.watch(
+              dashboardNotifierProvider.select((s) => s.player),
+            ),
+            map: ref.watch(dashboardNotifierProvider.select((s) => s.map)),
+            showDebug: ref.watch(
+              dashboardNotifierProvider.select((s) => s.showDebug),
+            ),
             onToggleDebug: (b) {
               notifier.toggleDebug(b);
             },

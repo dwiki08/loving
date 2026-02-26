@@ -188,7 +188,7 @@ class LogBody extends HookConsumerWidget {
           ),
           Expanded(
             child: LogList(
-              packets: packets.reversed.toList()..take(100),
+              packets: packets.reversed.toList(),
               scrollController: scrollController,
             ),
           ),
